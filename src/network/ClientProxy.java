@@ -10,4 +10,8 @@ public class ClientProxy {
 	public DocumentList getDocumentList(int type) {
 		return null;
 	}
+	
+	public void downloadDocument(String name, String dest) {
+		
+	}
 }
