@@ -12,12 +12,7 @@ public class DirectoryIterator implements Iterator{
 
 	@Override
 	public boolean hasNext() {
-		if(currentIndex < subDirectories.size()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return currentIndex < subDirectories.size();
 	}
 
 	@Override
