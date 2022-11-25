@@ -7,7 +7,7 @@ public class Directory {
 	private String name;
 	private String path;
 	
-	public Directory(String path) {
+	public Directory(String path) throws DirectoryNotFoundException {
 		File directory = new File(path);
 		if(directory.exists() && directory.isDirectory()) {
 			this.name = directory.getName();
@@ -29,8 +29,7 @@ public class Directory {
 		}
 	}
 	
-	
-	public boolean createSubDirectory(String name) {
+	private boolean createSubDirectoryImpl(String name) throws DirectoryNotFoundException {
 		File newDirectory = new File(this.path, name);
 		if(!newDirectory.exists() && !newDirectory.isFile()) {
 			if(newDirectory.mkdir()) {
@@ -39,6 +38,17 @@ public class Directory {
 			}
 		}
 		return false;
+	}
+	
+	public boolean createSubDirectory(String name) {
+		boolean result = false;
+		try {
+			result = createSubDirectoryImpl(name);
+		}
+		catch(DirectoryNotFoundException ex) {
+			ex.printStackTrace();
+		}
+		return result;
 	}
 	
 	public DirectoryIterator getSubDirectoryIterator() {
