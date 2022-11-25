@@ -1,6 +1,6 @@
 package directory;
 
-public class DirectoryNotFoundException extends RuntimeException{
+public class DirectoryNotFoundException extends Exception{
 	public DirectoryNotFoundException() {
 		
 	}
