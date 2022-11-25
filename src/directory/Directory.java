@@ -74,13 +74,4 @@ public class Directory {
 		
 		return str;
 	}
-	
-	// for testing
-	public static void main(String args[]) {
-		Directory dir = new Directory("./");
-		Iterator it = dir.getSubDirectoryIterator();
-		while(it.hasNext()) {
-			System.out.println(it.next());
-		}
-	}
 }
