@@ -54,6 +54,21 @@ public class Directory {
 	public DirectoryIterator getSubDirectoryIterator() {
 		return new DirectoryIterator(subDirectories);
 	}
+	
+	public FileIterator getSubFileIterator() {
+		File currFile = new File(path);
+		File subFiles[] = currFile.listFiles();
+		ArrayList<String> subFileName = new ArrayList<String>();
+		
+		for(int i = 0; i < subFiles.length; i++) {
+			if(!(subFiles[i].isDirectory())) { // 현 디렉토리의 하위 파일들에 대해서만 처리
+				subFileName.add(subFiles[i].getName());
+			}
+		}
+		FileIterator fileIterator = new FileIterator(subFileName);
+		
+		return fileIterator;
+	}
 
 	
 	private void addExistSubDirectory(Directory subDirectory) {
