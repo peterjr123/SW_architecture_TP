@@ -20,6 +20,6 @@ public class DocumentList {
 	}
 	
 	public String getDocumentName(int idx) {
-		return documentCourseName.get(idx);
+		return documentName.get(idx);
 	}
 }
