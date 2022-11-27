@@ -1,7 +1,13 @@
 package client;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.Set;
 
 import data.DocumentList;
@@ -13,14 +19,68 @@ import network.ClientProxy;
 public class GetDocumentManager {
 	private Directory root;
 	private ClientProxy service;
+	private String rootDirectoryPath;
+	private final String PATH_SAVED_FILE = "./root_path.txt";
 	
 	public GetDocumentManager(ClientProxy service) {
 		this.service = service;
+		
+		rootDirectoryPath = getSavedRootDirectoryPath();
+		
+		Scanner scanner = new Scanner(System.in);
+		if(rootDirectoryPath == null) {
+			System.out.println();
+			System.out.println("문서가 다운로드될 경로를 입력해 주십시오: ");
+			rootDirectoryPath = scanner.nextLine();
+			saveRootDirectoryPath();
+		}
+		else {
+			System.out.println();
+			System.out.println("문서 다운로드 경로: " + rootDirectoryPath);
+			System.out.println("해당 경로에 문서가 다운로드 됩니다.");
+			System.out.print("해당 경로로 진행하시겠습니까? (Y/N) : ");
+			String userConfirm = scanner.nextLine();
+			if(userConfirm == "N" || userConfirm == "n") {
+				System.out.print("새로운 경로: ");
+				rootDirectoryPath = scanner.next();
+				saveRootDirectoryPath();
+			}
+		}
+		
+		if(setDirectory(rootDirectoryPath)) { // 정상적으로 초기 디렉토리가 생성된 경우
+			System.out.println("루트 디렉토리 확인.");
+		}
+		else { // 초기 디렉토리가 생성되지 못한 경우 -> 디렉토리 경로가 잘못됨
+			System.out.println("ERROR: 디렉토리 경로가 알맞은지 확인해주세요.");
+			System.out.println("경로: " + rootDirectoryPath);
+			System.out.println();
+			System.out.println("프로그램을 재시작하고, 새로운 경로를 입력해 주세요.");
+		}
 	}
 	
-	public void start() {
-		setDirectory("./테스트용/");
-		
+	private void saveRootDirectoryPath() {
+		try {
+			PrintWriter writer = new PrintWriter(new FileWriter(PATH_SAVED_FILE));
+			writer.println(rootDirectoryPath);
+			writer.close();
+			System.out.println("로컬파일에 루트 경로 저장 완료.");
+		} catch (IOException e) {
+			return;
+		}
+	}
+	
+	private String getSavedRootDirectoryPath() {
+		try {
+			Scanner scanner = new Scanner(new File(PATH_SAVED_FILE));
+			String path = scanner.nextLine();
+			scanner.close();
+			return path;
+		} catch (FileNotFoundException e) {
+			return null;
+		}
+	}
+	
+	public void getDocument() {
 		DocumentList ecampusDocumentList = getDocumentList();
 		
 		ecampusDocumentList.addDocument("소프트웨어 아키텍처", "강의자료1.pdf");
@@ -145,9 +205,5 @@ public class GetDocumentManager {
 	
 	private DocumentList getDocumentList() {
 		return new DocumentList();
-	}
-	
-	private int getDocument() {
-		return 0;
 	}
 }
