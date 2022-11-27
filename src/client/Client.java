@@ -16,6 +16,8 @@ public class Client {
 		
 		if(selectedJob == 1) {
 			requestUserLogin();
+			GetDocumentManager manager = new GetDocumentManager(service);
+			manager.start();
 		}
 		
 		userInput.close();
