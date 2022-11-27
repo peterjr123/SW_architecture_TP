@@ -19,6 +19,6 @@ public class FileIterator implements Iterator {
 	public String next() {
 		// TODO Auto-generated method stub
 		++currentIdx;
-		return fileList.get(currentIdx);
+		return fileList.get(currentIdx - 1);
 	}
 }
