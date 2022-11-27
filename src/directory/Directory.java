@@ -55,6 +55,16 @@ public class Directory {
 		return new DirectoryIterator(subDirectories);
 	}
 	
+	public boolean hasFile(String fileName) {
+		FileIterator files = this.getSubFileIterator();
+		while(files.hasNext()) {
+			if((files.next()).equals(fileName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public FileIterator getSubFileIterator() {
 		File currFile = new File(path);
 		File subFiles[] = currFile.listFiles();
