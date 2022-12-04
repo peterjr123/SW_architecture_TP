@@ -1,10 +1,7 @@
 package network;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-
-import data.DocumentList;
 
 public class DocumentRequestSender {
 	
@@ -22,17 +19,20 @@ public class DocumentRequestSender {
 		pw.flush();
 	}
 	
-	public void sendDocumentListRequest(PrintWriter pw,String documentType) {
-		pw.println("GET /"+documentType+" HTTP/1.1"); 
+	public void sendDocumentListRequest(PrintWriter pw,String requestbody) {
+		pw.println("GET /documentlist HTTP/1.1"); 
 		pw.println("Host: "+host);
 		pw.println();
+		pw.println(requestbody);
 		pw.flush();
 	}
 	
-	public void sendDocumentRequest(PrintWriter pw, String name) throws IOException {
-		pw.println("GET /"+name+" HTTP/1.1"); 
+	
+	public void sendDocumentRequest(PrintWriter pw, String requestBody) throws IOException {
+		pw.println("GET /document HTTP/1.1"); 
 		pw.println("Host: "+host);
 		pw.println();
+		pw.println(requestBody);
 		pw.flush();
 	}
 }
