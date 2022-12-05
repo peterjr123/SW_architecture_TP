@@ -5,7 +5,8 @@ import chromedriver_autoinstaller
 import os
 import time
 
-class DocumentCrawler(metaclass=ABCMeta):
+class DocumentCrawler():
+
     def installChromeDriver(self):
         chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
         driver_path = f'./{chrome_ver}/chromedriver.exe'
@@ -18,7 +19,8 @@ class DocumentCrawler(metaclass=ABCMeta):
         return
 
     def validAccount(self, id, pw):
-        print(f"id: {id}, pw={pw}")
+        self.__login(id, pw)
+        # print(f"id: {id}, pw={pw}")
         return True
 
     def getDocumentList(self):
@@ -51,13 +53,13 @@ class DocumentCrawler(metaclass=ABCMeta):
                 print(item)
         return documentList
     
-    def downloadDocument():
-        return
+    # def downloadDocument():
+    #     return
 
-    def __login(self, id, pw):
+    def login(self, id, pw):
         self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
-        self.driver.find_element_by_id('usr_id').send_keys(id)
-        self.driver.find_element_by_id('usr_pwd').send_keys(pw)
+        self.driver.find_element(By.ID,'usr_id').send_keys(id)
+        self.driver.find_element(By.ID,'usr_pwd').send_keys(pw)
         self.driver.find_element(By.ID, 'login_btn').click()
 
         while "수강과목" not in self.driver.page_source:
@@ -72,10 +74,18 @@ class DocumentCrawler(metaclass=ABCMeta):
                 self.driver.execute_script('eclassRoom'+"('"+classNum+"')")
                 break
         return  
+    #
+    # @abstractmethod
+    # def createDocumentListByCrawling():
+    #     pass
 
-    @abstractmethod
-    def createDocumentListByCrawling():
-        pass
 
-    
+if __name__ == "__main__":
+    crawler = DocumentCrawler()
+    id = "qqazws7"
+    pwd = "lookat159~"
+    crawler.installChromeDriver()
+    while(True):
+        crawler.login(id, pwd)
 
+    #crawler.validAccount(id, pwd)
