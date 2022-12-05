@@ -1,19 +1,22 @@
 class DocumentResponseSender:
 
-    def setsuccessloginresponse(self):
+    def setsuccessloginresponse(self, client_socket):
         response_msg = "HTTP/1.1 200 OK"
-        return response_msg
+        client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
-    def setGetDocumentListResponse(self, responsebody):
+
+    def setGetDocumentListResponse(self, client_socket, responsebody):
         response_msg = "HTTP/1.1 200 OK"+'\r\n'
         response_msg +="Content-Length: "+str(len(responsebody))+"\r\n\r\n";
         response_msg += responsebody
-        return response_msg
+        client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
-    def setsuccessDocumentresponse(self):
-        response_msg = "HTTP/1.1 200 OK"
-        return response_msg
+    def setsuccessDocumentresponse(sel, client_socket, responsebody):
+        response_msg = "HTTP/1.1 200 OK" + '\r\n'
+        response_msg += "Content-Length: " + str(len(responsebody)) + "\r\n\r\n";
+        response_msg += responsebody
+        client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
-    def setFailedResponse(self):
+    def setFailedResponse(self, client_socket):
         response_msg = "HTTP/1.1 400 Bad Request"
-        return response_msg
+        client_socket.sendall(response_msg.encode(encoding="utf-8"))

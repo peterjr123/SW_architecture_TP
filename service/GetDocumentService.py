@@ -1,15 +1,28 @@
-import documentCrawler
+from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
+
 class GetDocumentService:
-    ###login
+
     def __init__(self):
-        self.id = 'id'
-        self.pwd = 'pwd'
-    ###
-    documentCrawler.validAccount(id,pwd)
-    documentCrawler.getDownloadList()
-    documentCrawler.downloadDocument()
-    """
-    이 아래로는 다른 class를 구현해서
-    import한 후에 객체.함수명으로 구현하면 됩니다.
-    template method pattern 적용
-    """
+        self.id = "id"
+        self.pwd = "pwd"
+        self.document_crawler = LectureNoteDocCrawler()
+
+    def login(self, id, pw):
+        valid = self.document_crawler.validAccount(id,pw)
+        if valid:
+            return True
+        else:
+            print("id/pw is not valid")
+            return False
+
+
+    def getDocumentList(self, type):
+        if type == "강의자료":
+            documentlist = self.document_crawler.getDocumentList()
+            return documentlist
+        # else type == "과제":
+
+
+    def getDocument(self, missingDocument):
+            path = self.document_crawler.getDocument(missingDocument)
+            return path
