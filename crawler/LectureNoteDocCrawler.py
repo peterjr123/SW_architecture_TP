@@ -16,13 +16,18 @@ class LectureNoteDocCrawler(Crawler):
         documentList = []
 
         # 과목 페이지에서 강의자료 리스트 페이지 접속
+        isDocumentListPageExist = False
         submains = self.driver.find_elements(By.CLASS_NAME, 'submain-notice')
         for i in range(len(submains)):
             submainName = submains[i].find_element(By.CLASS_NAME, 'title').text
             if(submainName.find("강의자료") != -1):
                 submains[i].find_element(By.XPATH, './/div[1]').click()
+                isDocumentListPageExist = True
                 break
         
+        if(isDocumentListPageExist == False):
+            return
+
         time.sleep(0.2)
 
         # 강의자료 리스트 페이지에서 각 강의자료 페이지에 접속후, 각 요소들을 가져옴.
@@ -37,7 +42,9 @@ class LectureNoteDocCrawler(Crawler):
             files = self.driver.find_elements(By.XPATH, '//a[@class="site-link"]')
             # time.sleep(0.2)
             for file in files:
-                documentList.append(file.text)
+                rawName = file.text
+                fileName = rawName[rawName.find('-')+2 : rawName.rfind('(')-1]
+                documentList.append(fileName)
 
             self.driver.back()
         
