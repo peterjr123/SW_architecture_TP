@@ -6,7 +6,22 @@ import os
 import time
 
 class DocumentCrawler():
+    def downloadDocument(self, documentList):
+        filePathListPerSubject = {}
+        if(self.validAccount(self.id, self.pw) == False):
+            print("invalid account")
+            return
 
+        self.__login(self.id, self.pw)
+
+        subjectNames = self.__getSubjectNameList()
+
+        for subjectName in subjectNames:
+            self.__accessSubjectPage(subjectName)
+            filePathListPerSubject[subjectName] = self.downloadDocumentByCrawling(documentList)
+            self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+        return filePathListPerSubject
+    
     def installChromeDriver(self):
         chrome_ver = chromedriver_autoinstaller.get_chrome_version().split('.')[0]
         driver_path = f'./{chrome_ver}/chromedriver.exe'
@@ -19,23 +34,43 @@ class DocumentCrawler():
         return
 
     def validAccount(self, id, pw):
-        self.__login(id, pw)
 
+        self.__login(id, pw)
+        print(f"id: {id}, pw={pw}")
+        return True
+
+    def __getSubjectNameList(self):
+        subjectNames = []
+        subjects = self.driver.find_elements(By.CSS_SELECTOR, '.term_info ~ li')
+        for subject in subjects:
+            if(subject.get_attribute('class') != "term_info"):
+                rawName = subject.find_element(By.CLASS_NAME, 'sub_open').text
+                subjectNames.append(rawName[rawName.find(']')+1 : rawName.rfind('(')])
+            else: 
+                break
+        return subjectNames
 
     def getDocumentList(self):
+        documentList = {}
+        subjectNames = []
         if(self.validAccount(self.id, self.pw) == False):
             print("invalid account")
             return
 
         self.__login(self.id, self.pw)
-        self.__accessSubjectPage("네트워크프로그래밍")
-        self.createDocumentListByCrawling()
-        return
-    
-    # def downloadDocument():
-    #     return
 
-    def login(self, id, pw):
+        subjectNames = self.__getSubjectNameList()
+
+        for subjectName in subjectNames:
+            self.__accessSubjectPage(subjectName)
+            documentList[subjectName] = self.createDocumentListByCrawling()
+            self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+        
+        return documentList
+    
+    
+
+    def __login(self, id, pw):
         self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
         self.driver.find_element(By.ID,'usr_id').send_keys(id)
         self.driver.find_element(By.ID,'usr_pwd').send_keys(pw)
@@ -53,18 +88,12 @@ class DocumentCrawler():
                 self.driver.execute_script('eclassRoom'+"('"+classNum+"')")
                 break
         return  
-    #
-    # @abstractmethod
-    # def createDocumentListByCrawling():
-    #     pass
+    
+    @abstractmethod
+    def createDocumentListByCrawling():
+        pass
 
+    @abstractmethod
+    def downloadDocumentByCrawling():
+        pass
 
-if __name__ == "__main__":
-    crawler = DocumentCrawler()
-    id = "qqazws7"
-    pwd = "lookat159~"
-    crawler.installChromeDriver()
-    while(True):
-        crawler.login(id, pwd)
-
-    #crawler.validAccount(id, pwd)
