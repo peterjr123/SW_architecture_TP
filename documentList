@@ -1,0 +1,16 @@
+import requests
+from bs4 import BeautifulSoup
+url = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
+data = {
+    'usr_id':'id',
+    'usr_pwd':'pwd'
+}
+s = requests.Session()
+response = s.post(url, data=data)
+response.status_code
+soup = BeautifulSoup(response.text)
+mypage='http://ecampus.konkuk.ac.kr/ilos/st/course/submain_form.acl'
+resp = s.get(mypage)
+soup = BeautifulSoup(resp.text)
+td = soup.select('span.welcome_subject')
+td = soup.select('em.sub_open')
