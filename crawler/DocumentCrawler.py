@@ -20,8 +20,7 @@ class DocumentCrawler():
 
     def validAccount(self, id, pw):
         self.__login(id, pw)
-        # print(f"id: {id}, pw={pw}")
-        return True
+
 
     def getDocumentList(self):
         if(self.validAccount(self.id, self.pw) == False):
