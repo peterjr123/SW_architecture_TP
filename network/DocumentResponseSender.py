@@ -12,7 +12,7 @@ class DocumentResponseSender:
         client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
     def documentName_response(sel, client_socket, documentname):
-        response_msg = documentname + '\r\n'
+        response_msg = documentname+"\r\n"
         client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
     def failed_response(self, client_socket):
