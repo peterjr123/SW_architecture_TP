@@ -41,24 +41,30 @@ class DocumentCrawler():
     def __enterLoginInfo(self):
         self.driver.find_element(By.ID,'usr_id').send_keys(self.id)
         self.driver.find_element(By.ID,'usr_pwd').send_keys(self.pw)
-        self.driver.find_element(By.ID, 'login_btn').click()
+        try:
+            self.driver.find_element(By.ID, 'login_btn').click()
+        except:
+            return
 
-    def validAccount(self):
+    def validAccount(self, id, pw):
+        self.id = id
+        self.pw = pw
+
+        self.installChromeDriver()
         # return True
         loginURL = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
         self.driver.get(loginURL)
+
+        # self.driver.implicitly_wait(10)
+
         self.__enterLoginInfo()
 
-        try: 
-            Alert(self.driver).accept()
+        # TODO: url에 의하여 판단하는 것으로 기준 변경
+        if(self.driver.current_url == loginURL):
             print('login failed')
-            self.driver.close()
-            self.driver = webdriver.Chrome(self.driver_path)
             return False
-        except:
+        else:
             print('login success')
-            self.driver.close()
-            self.driver = webdriver.Chrome(self.driver_path)
             return True
 
     def __getSubjectNameList(self):
