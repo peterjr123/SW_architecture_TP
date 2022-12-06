@@ -1,19 +1,15 @@
 import sys, os
-#sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-sys.path.append(os.path.dirname("C:\\Users\\82103\\sw_architecture_tp"))
-
-
-from crawler import DocumentCrawler as crawler
-from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
 from network.DocumentRequestHandler import DocumentRequestHandler
 
 
+
+from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
 class GetDocumentService:
 
     def __init__(self):
         self.id = "id"
         self.pwd = "pwd"
-        self.document_crawler = LectureNoteDocCrawler(crawler)
+        self.document_crawler = LectureNoteDocCrawler(self.id, self.pwd)
 
     def login(self, id, pw):
         valid = self.document_crawler.validAccount(id,pw)

@@ -1,8 +1,14 @@
+import socket
+import os, sys
+
+path = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
+sys.path.append(path)
+sys.path.append(path + "/crawler/")
+sys.path.append(path + "/network/")
+sys.path.append(path + "/service/")
+
 from DocumentResponseSender import DocumentResponseSender
 from service.GetDocumentService import GetDocumentService
-
-from service import *
-import socket
 
 
 class DocumentRequestHandler:

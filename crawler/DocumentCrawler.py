@@ -11,7 +11,7 @@ class DocumentCrawler():
 
     def downloadDocument(self, documentList):
         filePathListPerSubject = {}
-        if(self.validAccount(self.id, self.pw) == False):
+        if(self.validAccount() == False):
             print("invalid account")
             return
 
@@ -21,7 +21,9 @@ class DocumentCrawler():
 
         for subjectName in subjectNames:
             self.__accessSubjectPage(subjectName)
-            filePathListPerSubject[subjectName] = self.downloadDocumentByCrawling(documentList)
+            list = self.downloadDocumentByCrawling(documentList)
+            if list:
+                filePathListPerSubject[subjectName] = list
             self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
         return filePathListPerSubject
     
@@ -34,28 +36,38 @@ class DocumentCrawler():
             print(f"install the chrome driver(ver: {chrome_ver})")
             chromedriver_autoinstaller.install(True)
         self.driver = webdriver.Chrome(driver_path)
+        self.driver_path = driver_path
         return
 
     def __enterLoginInfo(self):
         self.driver.find_element(By.ID,'usr_id').send_keys(self.id)
         self.driver.find_element(By.ID,'usr_pwd').send_keys(self.pw)
-        self.driver.find_element(By.ID, 'login_btn').click()
+        try:
+            self.driver.find_element(By.ID, 'login_btn').click()
+        except:
+            return
 
-    def validAccount(self):
-        return True
-        # loginURL = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
-        # self.driver.get(loginURL)
-        # self.__enterLoginInfo()
 
-        # try: 
-        #     Alert(self.driver).accept()
-        #     print('login failed')
-        #     self.driver.close()
-        #     return True
-        # except:
-        #     print('login success')
-        #     self.driver.close()
-        #     return False
+    def validAccount(self, id, pw):
+        self.id = id
+        self.pw = pw
+
+        self.installChromeDriver()
+        # return True
+        loginURL = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
+        self.driver.get(loginURL)
+
+        # self.driver.implicitly_wait(10)
+
+        self.__enterLoginInfo()
+
+        # TODO: url에 의하여 판단하는 것으로 기준 변경
+        if(self.driver.current_url == loginURL):
+            print('login failed')
+            return False
+        else:
+            print('login success')
+            return True
 
     def __getSubjectNameList(self):
         subjectNames = []
@@ -75,13 +87,18 @@ class DocumentCrawler():
             print("invalid account")
             return
 
+        # self.driver.implicitly_wait(1)
+
         self.__login(self.id, self.pw)
+
 
         subjectNames = self.__getSubjectNameList()
 
         for subjectName in subjectNames:
             self.__accessSubjectPage(subjectName)
-            documentList[subjectName] = self.createDocumentListByCrawling()
+            list = self.createDocumentListByCrawling()
+            if list:
+                documentList[subjectName] = list
             self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
         
         return documentList
