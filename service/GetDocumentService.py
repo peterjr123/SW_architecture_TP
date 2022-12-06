@@ -19,10 +19,11 @@ class GetDocumentService:
     def getDocumentList(self, type):
         if type == "강의자료":
             documentlist = self.document_crawler.getDocumentList()
+            documentlist = {}
             return documentlist
         # else type == "과제":
 
 
     def getDocument(self, missingDocument):
-            path = self.document_crawler.getDocument(missingDocument)
-            return path
+            path, filenames = self.document_crawler.getDocument(missingDocument)
+            return path, filenames
