@@ -6,11 +6,11 @@ from selenium.webdriver import ActionChains
 import time
 import os
 
-
 class TeamprojectDocCrawler(Crawler):
     def __init__(self, id, pw):
         self.id = id
         self.pw = pw
+        self.driver_path = None
         self.driver = None
 
     # documentListPage가 존재하지 않아서 접속하지 못한 경우에 false 반환
@@ -53,16 +53,5 @@ class TeamprojectDocCrawler(Crawler):
                 self.driver.back()
         return documentList
 
-id = input("id: ")
-pw = input("pw: ")
-crawler = TeamprojectDocCrawler(id, pw)
-crawler.installChromeDriver()
-list = crawler.getDocumentList()
-# list = crawler.downloadDocument([])
 
-for key in list:
-    print("강의 이름:", key)
-    if(list[key] is None):
-        continue
-    for item in list[key]:
-        print(item)
+

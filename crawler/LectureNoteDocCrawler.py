@@ -13,6 +13,7 @@ class LectureNoteDocCrawler(Crawler):
         self.id = id
         self.pw = pw
         self.driver = None
+        self.driver_path = None
         # 절대경로이므로, 컴퓨터마다 수정해 주어야 함.
         self.downloadAbsolutePath = "C:/Users/joon/Downloads" 
 
@@ -97,13 +98,13 @@ pw = input("pw: ")
 crawler = LectureNoteDocCrawler(id, pw)
 crawler.installChromeDriver()
 crawler.validAccount()
-# list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
-# "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
+list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
+"Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
 
 
-# for key in list:
-#     print("강의 이름:", key)
-#     if(list[key] is None):
-#         continue
-#     for item in list[key]:
-#         print(item)
+for key in list:
+    print("강의 이름:", key)
+    if(list[key] is None):
+        continue
+    for item in list[key]:
+        print(item)
