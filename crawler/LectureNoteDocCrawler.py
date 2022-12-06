@@ -92,15 +92,18 @@ class LectureNoteDocCrawler(Crawler):
         
         return documentList
 
-crawler = LectureNoteDocCrawler("peterjr123", "peterjr123!")
+id = input("id: ")
+pw = input("pw: ")
+crawler = LectureNoteDocCrawler(id, pw)
 crawler.installChromeDriver()
-list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
-"Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
+crawler.validAccount()
+# list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
+# "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
 
 
-for key in list:
-    print("강의 이름:", key)
-    if(list[key] is None):
-        continue
-    for item in list[key]:
-        print(item)
+# for key in list:
+#     print("강의 이름:", key)
+#     if(list[key] is None):
+#         continue
+#     for item in list[key]:
+#         print(item)
