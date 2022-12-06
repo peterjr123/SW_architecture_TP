@@ -59,6 +59,7 @@ class DocumentRequestHandler:
         request_body = request.split("\r\n\r\n")[1]
         data_list = request_body.split("\r\n")
         for data in data_list:
+            print("data: " + data)
             course, material = data.split("/")
             if course not in json_dict:
                 json_dict[course] = material
@@ -139,3 +140,8 @@ class DocumentRequestHandler:
             client_soc.close()
 
 
+if __name__ == "__main__":
+    port = 3333
+    service = GetDocumentService()
+    request_handler = DocumentRequestHandler(port, service)
+    request_handler.start()

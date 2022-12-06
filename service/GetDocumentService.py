@@ -1,9 +1,6 @@
 import sys, os
-from network.DocumentRequestHandler import DocumentRequestHandler
-
-
-
 from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
+
 class GetDocumentService:
 
     def __init__(self):
@@ -31,14 +28,6 @@ class GetDocumentService:
 
 
     def getDocument(self, missingDocument):
-            path, filenames = self.document_crawler.getDocument(missingDocument)
-            return path, filenames
-
-
-if __name__ == "__main__":
-    port = 3333
-    service = GetDocumentService()
-    request_handler = DocumentRequestHandler(port, service)
-    request_handler.start()
-    print(sys.path)
+            filenames = self.document_crawler.getDocument(missingDocument)
+            return filenames
 
