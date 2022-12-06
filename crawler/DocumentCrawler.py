@@ -35,12 +35,19 @@ class DocumentCrawler():
         self.driver = webdriver.Chrome(driver_path)
         return
 
+<<<<<<< HEAD
     def __enterLoginInfo(self):
         self.driver.find_element(By.ID,'usr_id').send_keys(self.id)
         self.driver.find_element(By.ID,'usr_pwd').send_keys(self.pw)
         self.driver.find_element(By.ID, 'login_btn').click()
 
     def validAccount(self):
+=======
+    def validAccount(self, id, pw):
+
+        self.__login(id, pw)
+        print(f"id: {id}, pw={pw}")
+>>>>>>> 3565a9a957c1ac7fa0379bbf64e7869936e41e0a
         return True
         # loginURL = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
         # self.driver.get(loginURL)

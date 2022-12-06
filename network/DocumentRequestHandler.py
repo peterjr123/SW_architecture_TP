@@ -2,8 +2,6 @@ from DocumentResponseSender import DocumentResponseSender
 from service.GetDocumentService import GetDocumentService
 
 import socket
-import json
-
 
 class DocumentRequestHandler:
     def __init__(self, port, service):
@@ -18,9 +16,9 @@ class DocumentRequestHandler:
         id, pw = request_body.split("/")
         result = service.login(id, pw)
         if result:
-            self.rs.setsuccessloginresponse(client_socket)
+            self.rs.success_login_response(client_socket)
         else:
-            self.rs.setFailedResponse(client_socket)
+            self.rs.failed_response(client_socket)
 
     # json string을 dictionary로 받아와서 문자열("course/material")로 변환
     def __documentlist_parser(self, json_documentlist):
@@ -40,9 +38,9 @@ class DocumentRequestHandler:
         json_documentlist = service.getDocumentList(type)
         if json_documentlist is not None:
             documentlist = self.__documentlist_parser(json_documentlist)
-            self.rs.setGetDocumentListResponse(client_socket, documentlist)
+            self.rs.getDocumentList_response(client_socket, documentlist)
         else:
-            self.rs.setFailedResponse()
+            self.rs.failed_response()
 
     # missing_document를 dictionary로 만듦.
     def __document_parser(self, request):
@@ -61,18 +59,28 @@ class DocumentRequestHandler:
                     values = [value, material]
                     json_dict[course] = values
 
-        #json_string = json.dumps(json_dict)
-
         return json_dict
 
     def getDocument(self, request, client_socket):
-        missing_document = self.__document_parser(request)
-        path = service.getDocument(missing_document)
-        if path is not None:
-            response_msg = self.rs.setsuccessDocumentresponse(client_socket, path)
-            client_socket.sendall(response_msg.encode(encoding="utf-8"))
-        else:
-            self.rs.setFailedResponse(client_socket)
+        # missing_document = self.__document_parser(request)
+        # path, filenames = service.getDocument(missing_document)
+        # ","07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf","Chapter3 Threads.key.pdf"
+        path = "C:/Users/82103/Desktop/다운"
+        filenames = ["03-Architecture-Design Principles(15)-v1.pdf"]
+        for filename in filenames:
+            self.rs.documentName_response(client_socket, filename)
+            data_transferred = 0
+            print("파일 %s 전송 시작" % filename)
+            file_path = path + "/" + filename
+            with open(file_path, 'rb') as f:
+                try:
+                    data = f.read(1024)
+                    while data:
+                        data_transferred += client_socket.send(data)
+                        data = f.read(1024)
+                except Exception as ex:
+                    print(ex)
+            print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
 
     def listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -105,7 +113,7 @@ class DocumentRequestHandler:
 
 
 if __name__ == "__main__":
-    port = 80
+    port = 3333
     service = GetDocumentService()
     request_handler = DocumentRequestHandler(port, service)
     request_handler.listen()
