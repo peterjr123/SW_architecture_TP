@@ -55,23 +55,13 @@ class DocumentRequestHandler:
 
     # missing_document를 dictionary로 만듦.
     def __document_parser(self, request):
-        json_dict = {}
+        documentlist = []
         request_body = request.split("\r\n\r\n")[1]
         data_list = request_body.split("\r\n")
         for data in data_list:
             print("data: " + data)
-            course, material = data.split("/")
-            if course not in json_dict:
-                json_dict[course] = material
-            else:
-                value = json_dict[course]
-                if isinstance(value, list):
-                    value.append(material)
-                else:
-                    values = [value, material]
-                    json_dict[course] = values
-
-        return json_dict
+            documentlist.append(data)
+        return documentlist
 
     def getDocument(self, request, client_socket):
         missing_document = self.__document_parser(request)
