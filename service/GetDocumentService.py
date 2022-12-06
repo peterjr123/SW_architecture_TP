@@ -1,11 +1,13 @@
-from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
+import sys, os
 
+
+from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
 class GetDocumentService:
 
     def __init__(self):
         self.id = "id"
         self.pwd = "pwd"
-        self.document_crawler = LectureNoteDocCrawler()
+        self.document_crawler = LectureNoteDocCrawler(self.id, self.pwd)
 
     def login(self, id, pw):
         valid = self.document_crawler.validAccount(id,pw)

@@ -1,5 +1,4 @@
-
-from DocumentCrawler import DocumentCrawler as Crawler
+from DocumentCrawler import DocumentCrawler
 from abc import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -8,7 +7,7 @@ import time
 import os
 
 
-class LectureNoteDocCrawler(Crawler):
+class LectureNoteDocCrawler(DocumentCrawler):
     def __init__(self, id, pw):
         self.id = id
         self.pw = pw
@@ -93,18 +92,18 @@ class LectureNoteDocCrawler(Crawler):
         
         return documentList
 
-id = input("id: ")
-pw = input("pw: ")
-crawler = LectureNoteDocCrawler(id, pw)
-crawler.installChromeDriver()
-crawler.validAccount()
-list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
-"Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
+# id = input("id: ")
+# pw = input("pw: ")
+# crawler = LectureNoteDocCrawler(id, pw)
+# crawler.installChromeDriver()
+# crawler.validAccount()
+# list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 
+# "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART A.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART C.pdf", "Ch.5 SYNCHRONOUS SEQUENTIAL LOGIC - PART B.pdf"])
 
 
-for key in list:
-    print("강의 이름:", key)
-    if(list[key] is None):
-        continue
-    for item in list[key]:
-        print(item)
+# for key in list:
+#     print("강의 이름:", key)
+#     if(list[key] is None):
+#         continue
+#     for item in list[key]:
+#         print(item)
