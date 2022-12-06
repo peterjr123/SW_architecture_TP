@@ -1,6 +1,7 @@
 from DocumentResponseSender import DocumentResponseSender
 from service.GetDocumentService import GetDocumentService
 
+from service import *
 import socket
 
 
@@ -11,11 +12,14 @@ class DocumentRequestHandler:
         self.rs = DocumentResponseSender()
         self.host = 'localhost'
 
+    def start(self):
+        self.__listen()
+
     # 로그인
     def login(self, request, client_socket):
         request_body = request.split("\r\n\r\n")[1]
         id, pw = request_body.split("/")
-        result = service.login(id, pw)
+        result = self.service.login(id, pw)
         if result:
             self.rs.success_login_response(client_socket)
         else:
@@ -36,7 +40,7 @@ class DocumentRequestHandler:
 
     def getDocumentList(self, request, client_socket):
         type = request.split("\r\n\r\n")[1]
-        json_documentlist = service.getDocumentList(type)
+        json_documentlist = self.service.getDocumentList(type)
         if json_documentlist is not None:
             documentlist = self.__documentlist_parser(json_documentlist)
             self.rs.getDocumentList_response(client_socket, documentlist)
@@ -63,25 +67,25 @@ class DocumentRequestHandler:
         return json_dict
 
     def getDocument(self, request, client_socket):
-        # missing_document = self.__document_parser(request)
-        # path, filenames = service.getDocument(missing_document)
-        # ","07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf","Chapter3 Threads.key.pdf"
-        path = "C:/Users/82103/Desktop/다운"
-        filename = request.split("\r\n\r\n")[1]
-        print(filename)
-        # filenames = ["03-Architecture-Design Principles(15)-v1.pdf","Chapter3 Threads.key.pdf"]
-        data_transferred = 0
-        print("파일 %s 전송 시작" % filename)
-        file_path = path + "/" + filename
-        with open(file_path, 'rb') as f:
-            try:
-                data = f.read(1024)
-                while data:
-                    data_transferred += client_socket.send(data)
+        missing_document = self.__document_parser(request)
+        filenames = {}
+        filenames = self.service.getDocument(missing_document)
+        for value in filenames.values():
+            filename = value.split("/")[:-1]
+            data_transferred = 0
+            file_path = value
+
+            with open(file_path, 'rb') as f:
+                try:
                     data = f.read(1024)
-            except Exception as ex:
-                print(ex)
-        print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+                    while data:
+                        data_transferred += client_socket.send(data)
+                        data = f.read(1024)
+                except Exception as ex:
+                    print(ex)
+            print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+
+
         # for filename in filenames:
         #     data_transferred = 0
         #     print("파일 %s 전송 시작" % filename)
@@ -96,7 +100,7 @@ class DocumentRequestHandler:
         #             print(ex)
         #     print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
 
-    def listen(self):
+    def __listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(('localhost', 3333))
@@ -128,8 +132,3 @@ class DocumentRequestHandler:
             client_soc.close()
 
 
-if __name__ == "__main__":
-    port = 3333
-    service = GetDocumentService()
-    request_handler = DocumentRequestHandler(port, service)
-    request_handler.listen()

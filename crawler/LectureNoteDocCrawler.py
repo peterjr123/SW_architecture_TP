@@ -1,5 +1,9 @@
+import sys, os
 
-from DocumentCrawler import DocumentCrawler as Crawler
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
+from crawler import DocumentCrawler as Crawler
+#from DocumentCrawler import DocumentCrawler as Crawler
 from abc import *
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -10,8 +14,8 @@ import os
 
 class LectureNoteDocCrawler(Crawler):
     def __init__(self, id, pw):
-        self.id = id
-        self.pw = pw
+        self.id = "qqazws7"
+        self.pw =
         self.driver = None
         # 절대경로이므로, 컴퓨터마다 수정해 주어야 함.
         self.downloadAbsolutePath = "C:/Users/joon/Downloads" 

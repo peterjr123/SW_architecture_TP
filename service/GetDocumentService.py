@@ -1,11 +1,19 @@
+import sys, os
+#sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+sys.path.append(os.path.dirname("C:\\Users\\82103\\sw_architecture_tp"))
+
+
+from crawler import DocumentCrawler as crawler
 from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
+from network.DocumentRequestHandler import DocumentRequestHandler
+
 
 class GetDocumentService:
 
     def __init__(self):
         self.id = "id"
         self.pwd = "pwd"
-        self.document_crawler = LectureNoteDocCrawler()
+        self.document_crawler = LectureNoteDocCrawler(crawler)
 
     def login(self, id, pw):
         valid = self.document_crawler.validAccount(id,pw)
@@ -19,11 +27,20 @@ class GetDocumentService:
     def getDocumentList(self, type):
         if type == "강의자료":
             documentlist = self.document_crawler.getDocumentList()
-            documentlist = {}
             return documentlist
+
         # else type == "과제":
 
 
     def getDocument(self, missingDocument):
             path, filenames = self.document_crawler.getDocument(missingDocument)
             return path, filenames
+
+
+if __name__ == "__main__":
+    port = 3333
+    service = GetDocumentService()
+    request_handler = DocumentRequestHandler(port, service)
+    request_handler.start()
+    print(sys.path)
+
