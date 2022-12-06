@@ -3,6 +3,7 @@ class DocumentResponseSender:
     def success_login_response(self, client_socket):
         response_msg = "HTTP/1.1 200 OK"
         client_socket.sendall(response_msg.encode(encoding="utf-8"))
+        print('message send!!')
 
 
     def getDocumentList_response(self, client_socket, responsebody):

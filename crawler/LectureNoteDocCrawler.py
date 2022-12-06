@@ -95,6 +95,7 @@ class LectureNoteDocCrawler(DocumentCrawler):
 # id = input("id: ")
 # pw = input("pw: ")
 # crawler = LectureNoteDocCrawler(id, pw)
+# crawler.validAccount(id, pw)
 # crawler.installChromeDriver()
 # crawler.validAccount()
 # list = crawler.downloadDocument(["2202-소프트웨어아키텍처_실습자료12.pdf", "24. Review_of_Assignment#1.pdf", 

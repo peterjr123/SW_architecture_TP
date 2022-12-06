@@ -48,7 +48,7 @@ class DocumentRequestHandler:
             documentlist = self.__documentlist_parser(json_documentlist)
             self.rs.getDocumentList_response(client_socket, documentlist)
         else:
-            self.rs.failed_response()
+            self.rs.failed_response(client_socket)
 
     # missing_document를 dictionary로 만듦.
     def __document_parser(self, request):
@@ -70,8 +70,8 @@ class DocumentRequestHandler:
         return json_dict
 
     def getDocument(self, request, client_socket):
-        # missing_document = self.__document_parser(request)
-        # path, filenames = service.getDocument(missing_document)
+        missing_document = self.__document_parser(request)
+        path, filenames = service.getDocument(missing_document)
         # ","07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf","Chapter3 Threads.key.pdf"
         path = "C:/Users/82103/Desktop/다운"
         filename = request.split("\r\n\r\n")[1]

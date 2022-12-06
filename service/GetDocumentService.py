@@ -10,7 +10,7 @@ class GetDocumentService:
         self.document_crawler = LectureNoteDocCrawler(self.id, self.pwd)
 
     def login(self, id, pw):
-        valid = self.document_crawler.validAccount(id,pw)
+        valid = self.document_crawler.validAccount(id, pw)
         if valid:
             return True
         else:
@@ -19,9 +19,10 @@ class GetDocumentService:
 
 
     def getDocumentList(self, type):
+        print("type: " + type)
         if type == "강의자료":
+            print('get lecture document service start...')
             documentlist = self.document_crawler.getDocumentList()
-            documentlist = {}
             return documentlist
         # else type == "과제":
 
