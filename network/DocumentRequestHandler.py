@@ -3,6 +3,7 @@ from service.GetDocumentService import GetDocumentService
 
 import socket
 
+
 class DocumentRequestHandler:
     def __init__(self, port, service):
         self.port = port
@@ -66,21 +67,34 @@ class DocumentRequestHandler:
         # path, filenames = service.getDocument(missing_document)
         # ","07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf","Chapter3 Threads.key.pdf"
         path = "C:/Users/82103/Desktop/다운"
-        filenames = ["03-Architecture-Design Principles(15)-v1.pdf"]
-        for filename in filenames:
-            self.rs.documentName_response(client_socket, filename)
-            data_transferred = 0
-            print("파일 %s 전송 시작" % filename)
-            file_path = path + "/" + filename
-            with open(file_path, 'rb') as f:
-                try:
+        filename = request.split("\r\n\r\n")[1]
+        print(filename)
+        # filenames = ["03-Architecture-Design Principles(15)-v1.pdf","Chapter3 Threads.key.pdf"]
+        data_transferred = 0
+        print("파일 %s 전송 시작" % filename)
+        file_path = path + "/" + filename
+        with open(file_path, 'rb') as f:
+            try:
+                data = f.read(1024)
+                while data:
+                    data_transferred += client_socket.send(data)
                     data = f.read(1024)
-                    while data:
-                        data_transferred += client_socket.send(data)
-                        data = f.read(1024)
-                except Exception as ex:
-                    print(ex)
-            print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+            except Exception as ex:
+                print(ex)
+        print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+        # for filename in filenames:
+        #     data_transferred = 0
+        #     print("파일 %s 전송 시작" % filename)
+        #     file_path = path + "/" + filename
+        #     with open(file_path, 'rb') as f:
+        #         try:
+        #             data = f.read(1024)
+        #             while data:
+        #                 data_transferred += client_socket.send(data)
+        #                 data = f.read(1024)
+        #         except Exception as ex:
+        #             print(ex)
+        #     print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
 
     def listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -88,14 +102,17 @@ class DocumentRequestHandler:
         server_socket.bind(('localhost', 3333))
         server_socket.listen()
         print('server listening...')
-
+        count = 0
         while (True):
+            if count == 3:
+                break
             client_soc, addr = server_socket.accept()
             print('connected client addr:', addr)
 
             data = client_soc.recv(10000)
             request = data.decode()
 
+            count += 1
             if "HTTP/" in request:
                 if "POST /login" in request:  # response for login
                     self.login(request, client_soc)
@@ -107,7 +124,6 @@ class DocumentRequestHandler:
                 # response for getdocument
                 elif "GET /document" in request:
                     self.getDocument(request, client_soc)
-                    break
 
             client_soc.close()
 
