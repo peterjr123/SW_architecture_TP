@@ -11,11 +11,13 @@ class DocumentCrawler():
 
     def downloadDocument(self, documentList):
         filePathListPerSubject = {}
-        if(self.validAccount() == False):
-            print("invalid account")
-            return
 
-        self.__login(self.id, self.pw)
+        if self.__isLoggedIn() == False:
+            if(self.validAccount() == False):
+                print("invalid account")
+                return
+
+            self.__login(self.id, self.pw)
 
         subjectNames = self.__getSubjectNameList()
 
@@ -80,17 +82,26 @@ class DocumentCrawler():
                 break
         return subjectNames
 
+    def __isLoggedIn(self):
+        if "수강과목" in self.driver.page_source:
+            print('already logged in')
+            return True
+        else:
+            print('not logged in -> trying to login...')
+            return False
+
     def getDocumentList(self):
         documentList = {}
         subjectNames = []
-        if(self.validAccount() == False):
-            print("invalid account")
-            return
 
-        # self.driver.implicitly_wait(1)
+        if self.__isLoggedIn() == False:
+            if(self.validAccount(self.id, self.pw) == False):
+                print("invalid account")
+                return
 
-        self.__login(self.id, self.pw)
+            # self.driver.implicitly_wait(1)
 
+            self.__login(self.id, self.pw)
 
         subjectNames = self.__getSubjectNameList()
 

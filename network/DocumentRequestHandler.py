@@ -51,7 +51,7 @@ class DocumentRequestHandler:
             documentlist = self.__documentlist_parser(json_documentlist)
             self.rs.getDocumentList_response(client_socket, documentlist)
         else:
-            self.rs.failed_response()
+            self.rs.failed_response(client_socket)
 
     # missing_document를 dictionary로 만듦.
     def __document_parser(self, request):
@@ -90,6 +90,7 @@ class DocumentRequestHandler:
                 except Exception as ex:
                     print(ex)
             print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+
 
 
         # for filename in filenames:
