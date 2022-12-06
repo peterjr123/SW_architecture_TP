@@ -1,6 +1,8 @@
 from abc import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.alert import Alert
 import chromedriver_autoinstaller
 import os
 import time
@@ -33,10 +35,26 @@ class DocumentCrawler():
         self.driver = webdriver.Chrome(driver_path)
         return
 
-    def validAccount(self, id, pw):
-        # self.__login(id, pw)
-        # print(f"id: {id}, pw={pw}")
+    def __enterLoginInfo(self):
+        self.driver.find_element(By.ID,'usr_id').send_keys(self.id)
+        self.driver.find_element(By.ID,'usr_pwd').send_keys(self.pw)
+        self.driver.find_element(By.ID, 'login_btn').click()
+
+    def validAccount(self):
         return True
+        # loginURL = 'https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl'
+        # self.driver.get(loginURL)
+        # self.__enterLoginInfo()
+
+        # try: 
+        #     Alert(self.driver).accept()
+        #     print('login failed')
+        #     self.driver.close()
+        #     return True
+        # except:
+        #     print('login success')
+        #     self.driver.close()
+        #     return False
 
     def __getSubjectNameList(self):
         subjectNames = []
@@ -52,7 +70,7 @@ class DocumentCrawler():
     def getDocumentList(self):
         documentList = {}
         subjectNames = []
-        if(self.validAccount(self.id, self.pw) == False):
+        if(self.validAccount() == False):
             print("invalid account")
             return
 
