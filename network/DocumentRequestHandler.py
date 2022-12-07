@@ -65,14 +65,13 @@ class DocumentRequestHandler:
 
     def getDocument(self, request, client_socket):
         missing_document = self.__document_parser(request)
-        filenames = {}
-        filenames = self.service.getDocument(missing_document)
-        for value in filenames.values():
-            filename = value.split("/")[:-1]
+        documents = self.service.getDocument(missing_document)
+        course_name = next(iter(documents)) # 과목명
+        documents_path = documents[next(iter(documents))] # 과목명에 대한 파일 경로 list
+        print("파일 다운로드: %s" %documents_path)
+        for document_path in documents_path:
             data_transferred = 0
-            file_path = value
-
-            with open(file_path, 'rb') as f:
+            with open(document_path, 'rb') as f:
                 try:
                     data = f.read(1024)
                     while data:
@@ -80,23 +79,7 @@ class DocumentRequestHandler:
                         data = f.read(1024)
                 except Exception as ex:
                     print(ex)
-            print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
-
-
-
-        # for filename in filenames:
-        #     data_transferred = 0
-        #     print("파일 %s 전송 시작" % filename)
-        #     file_path = path + "/" + filename
-        #     with open(file_path, 'rb') as f:
-        #         try:
-        #             data = f.read(1024)
-        #             while data:
-        #                 data_transferred += client_socket.send(data)
-        #                 data = f.read(1024)
-        #         except Exception as ex:
-        #             print(ex)
-        #     print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+            print("전송완료 %s, 전송량 %d" % (document_path, data_transferred))
 
     def __listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -104,17 +87,14 @@ class DocumentRequestHandler:
         server_socket.bind(('localhost', 3333))
         server_socket.listen()
         print('server listening...')
-        count = 0
         while (True):
-            if count == 3:
-                break
+
             client_soc, addr = server_socket.accept()
             print('connected client addr:', addr)
 
             data = client_soc.recv(10000)
             request = data.decode()
 
-            count += 1
             if "HTTP/" in request:
                 if "POST /login" in request:  # response for login
                     self.login(request, client_soc)
