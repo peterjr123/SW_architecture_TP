@@ -53,7 +53,7 @@ class DocumentRequestHandler:
         else:
             self.rs.failed_response(client_socket)
 
-    # missing_document를 dictionary로 만듦.
+    # missing_document를 list로 만듦.
     def __document_parser(self, request):
         documentlist = []
         request_body = request.split("\r\n\r\n")[1]
@@ -66,20 +66,11 @@ class DocumentRequestHandler:
     def getDocument(self, request, client_socket):
         missing_document = self.__document_parser(request)
         documents = self.service.getDocument(missing_document)
-        course_name = next(iter(documents)) # 과목명
-        documents_path = documents[next(iter(documents))] # 과목명에 대한 파일 경로 list
-        print("파일 다운로드: %s" %documents_path)
+        course_name = next(iter(documents))  # 과목명
+        documents_path = documents[next(iter(documents))]  # 과목명에 대한 파일 경로 list
+        print("파일 다운로드: %s" % documents_path)
         for document_path in documents_path:
-            data_transferred = 0
-            with open(document_path, 'rb') as f:
-                try:
-                    data = f.read(1024)
-                    while data:
-                        data_transferred += client_socket.send(data)
-                        data = f.read(1024)
-                except Exception as ex:
-                    print(ex)
-            print("전송완료 %s, 전송량 %d" % (document_path, data_transferred))
+            self.rs.getDocument_response(client_socket, document_path)
 
     def __listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
