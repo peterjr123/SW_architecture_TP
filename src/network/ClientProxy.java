@@ -21,10 +21,24 @@ public class ClientProxy {
 	private BufferedOutputStream bos;
 	private BufferedInputStream bis;
 	
-	private int port = 80;
+	private int port = 3333;
 	private String serverURL = "localhost";
 	private DocumentList documentlist;
 	private String DocumentType = "";
+	
+	public static void main(String[] args) {
+		ClientProxy service = new ClientProxy();
+		boolean result = service.login("peterjr123", "peterjr123!");
+		System.out.println("로그인 결과: " + result);
+		
+		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
+		
+//		DocumentList list = service.getDocumentList("강의자료");
+//		for(int i = 0; i < list.length(); i++) {
+//			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
+//		}
+	}
+	
 	public ClientProxy() {
 		this.drs = new DocumentRequestSender(this.serverURL);
 		this.documentlist = new DocumentList();
@@ -181,7 +195,7 @@ public class ClientProxy {
 				DataInputStream dis = new DataInputStream(socket.getInputStream());
 				BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 				
-				String destination = "C:\\Users\\82103\\Desktop\\client";
+				String destination = dest;
 				saveDir = new File(destination);
 				saveFile = new File(saveDir, materials.get(i));
 				bis = new BufferedInputStream(dis);

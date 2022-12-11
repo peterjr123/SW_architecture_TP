@@ -23,7 +23,7 @@ public class DocumentRequestSender {
 		pw.println("GET /documentlist HTTP/1.1"); 
 		pw.println("Host: "+host);
 		pw.println();
-		pw.println(requestbody);
+		pw.print(requestbody);
 		pw.flush();
 	}
 	
