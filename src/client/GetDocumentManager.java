@@ -19,43 +19,26 @@ import network.ClientProxy;
 public class GetDocumentManager {
 	private Directory root;
 	private ClientProxy service;
+	private Console console = new Console();
 	private String rootDirectoryPath;
 	private final String PATH_SAVED_FILE = "./root_path.txt";
 	
 	public GetDocumentManager(ClientProxy service) {
 		this.service = service;
 		
-		rootDirectoryPath = getSavedRootDirectoryPath();
-		
-		Scanner scanner = new Scanner(System.in);
+		rootDirectoryPath = getSavedRootDirectoryPath(); // 로컬 파일에 저장해둔 디렉토리 주소를 먼저 참조.
 		if(rootDirectoryPath == null) {
-			System.out.println();
-			System.out.println("문서가 다운로드될 경로를 입력해 주십시오: ");
-			rootDirectoryPath = scanner.nextLine();
-			saveRootDirectoryPath();
+			rootDirectoryPath = console.getNewRootDirectoryPath();
 		}
 		else {
-			System.out.println();
-			System.out.println("문서 다운로드 경로: " + rootDirectoryPath);
-			System.out.println("해당 경로에 문서가 다운로드 됩니다.");
-			System.out.print("해당 경로로 진행하시겠습니까? (Y/N) : ");
-			String userConfirm = scanner.nextLine();
-			if(userConfirm == "N" || userConfirm == "n") {
-				System.out.print("새로운 경로: ");
-				rootDirectoryPath = scanner.next();
-				saveRootDirectoryPath();
-			}
+			rootDirectoryPath = console.confirmRootDirectoryPath(rootDirectoryPath);
+		}
+		saveRootDirectoryPath(); // 디렉토리 주소가 갱신되었을 가능성이 존재하므로, 파일에 현재 주소로 덮어쓰기.
+		
+		if(!setRootDirectory(rootDirectoryPath)) { 
+			console.cannotFindRootDirectory(rootDirectoryPath);
 		}
 		
-		if(setDirectory(rootDirectoryPath)) { // 정상적으로 초기 디렉토리가 생성된 경우
-			System.out.println("루트 디렉토리 확인.");
-		}
-		else { // 초기 디렉토리가 생성되지 못한 경우 -> 디렉토리 경로가 잘못됨
-			System.out.println("ERROR: 디렉토리 경로가 알맞은지 확인해주세요.");
-			System.out.println("경로: " + rootDirectoryPath);
-			System.out.println();
-			System.out.println("프로그램을 재시작하고, 새로운 경로를 입력해 주세요.");
-		}
 	}
 	
 	private void saveRootDirectoryPath() {
@@ -63,7 +46,6 @@ public class GetDocumentManager {
 			PrintWriter writer = new PrintWriter(new FileWriter(PATH_SAVED_FILE));
 			writer.println(rootDirectoryPath);
 			writer.close();
-			System.out.println("로컬파일에 루트 경로 저장 완료.");
 		} catch (IOException e) {
 			return;
 		}
@@ -81,19 +63,26 @@ public class GetDocumentManager {
 	}
 	
 	public void getDocument() {
-		DocumentList ecampusDocumentList = getDocumentList();
+		String documentType = "강의자료";
+		DocumentList ecampusDocumentList = getDocumentList(documentType);
 		
-		ecampusDocumentList.addDocument("소프트웨어 아키텍처", "강의자료1.pdf");
-		ecampusDocumentList.addDocument("소프트웨어 아키텍처", "강의자료2.pdf");
-		ecampusDocumentList.addDocument("네트워크 프로그래밍", "강의자료3.pdf");
+		DocumentList missingDocumentList = findMissingDocument(ecampusDocumentList, documentType);
 		
-		DocumentList missingDocumentList = findMissingDocument(ecampusDocumentList, "강의자료");
-		
-		for(int i = 0; i < missingDocumentList.length(); i++) {
-			System.out.println(missingDocumentList.getCourse(i) + ": " + missingDocumentList.getDocumentName(i));
-		}
+		requestMissingDocument(missingDocumentList, documentType);
 	}
 	
+	private void requestMissingDocument(DocumentList missingDocumentList, String documentType) {
+		HashMap<String, DocumentList> classifiedDocumentList = classifyDocumentListByCourse(missingDocumentList);
+		
+		HashMap<String, Directory> classifiedDocumentTypeDirectory = classifyDocumentTypeDirectoryByCourse(root, documentType);
+		
+		for(String courseName : classifiedDocumentList.keySet()) {
+			if(classifiedDocumentTypeDirectory.containsKey(courseName)) {
+				System.out.println(courseName + "의 강의자료 요청됨...");
+				service.downloadDocument(classifiedDocumentList.get(courseName), classifiedDocumentTypeDirectory.get(courseName).getPath());
+			}
+		}
+	}
 	
 	
 	private DocumentList findMissingDocument(DocumentList ecampusDocumentList, String documentType) {
@@ -194,7 +183,7 @@ public class GetDocumentManager {
 		return classifiedList;
 	}
 
-	private boolean setDirectory(String rootDirectoryPath) {
+	private boolean setRootDirectory(String rootDirectoryPath) {
 		try {
 			root = new Directory(rootDirectoryPath);
 			return true;
@@ -203,7 +192,7 @@ public class GetDocumentManager {
 		}
 	}
 	
-	private DocumentList getDocumentList() {
-		return new DocumentList();
+	private DocumentList getDocumentList(String documentType) {
+		return service.getDocumentList(documentType);
 	}
 }

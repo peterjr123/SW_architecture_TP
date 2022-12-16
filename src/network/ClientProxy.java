@@ -29,16 +29,16 @@ public class ClientProxy {
 	
 	public static void main(String[] args) {
 		ClientProxy service = new ClientProxy();
-		boolean result = service.login("qqazws7", "lookat159~");
+		boolean result = service.login("peterjr123", "peterjr123!");
 		System.out.println("로그인 결과: " + result);
 		
-//		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
-		service.downloadDocument(null, "C:\\Users\\82103\\Desktop\\client");
+//		service.downloadDocument(null, "C:\\Users\\joon\\eclipse-workspace\\SoftwareArchitectureTeamproject");
+//		service.downloadDocument(null, "C:\\Users\\82103\\Desktop\\client");
 		
-//		DocumentList list = service.getDocumentList("강의자료");
-//		for(int i = 0; i < list.length(); i++) {
-//			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
-//		}
+		DocumentList list = service.getDocumentList("강의자료");
+		for(int i = 0; i < list.length(); i++) {
+			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
+		}
 	}
 	
 	public ClientProxy() {
@@ -69,9 +69,8 @@ public class ClientProxy {
 
 			String response = s.toString();
 			
-			Boolean result = requestparser.loginResponseParser(response);
-			return true;
-
+			boolean result = requestparser.loginResponseParser(response);
+			return result;
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} finally {
@@ -144,7 +143,7 @@ public class ClientProxy {
 
 	// dest: C: ~ 건국대학교/4-2
 	// dest + 과목(변수)/강의자료/material(변수)
-
+	
 	public void downloadDocument(DocumentList documentlist, String dest) {
 		Socket socket = null;
 		File saveDir = null;
@@ -154,8 +153,8 @@ public class ClientProxy {
 		
 		ArrayList<String> materials = new ArrayList<String>();
 		materials.add("03-Architecture-Design Principles(15)-v1.pdf");
-		materials.add("07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf");
-		materials.add("Chapter3 Threads.key.pdf");
+//		materials.add("07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf");
+//		materials.add("Chapter3 Threads.key.pdf");
 		
 		for(int i = 0; i < materials.size(); i++) {
 			try {

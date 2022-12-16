@@ -5,26 +5,30 @@ import network.ClientProxy;
 
 public class Client {
 	private static ClientProxy service = new ClientProxy();
+	private static Console console = new Console();
 	
 	public static void main(String args[]) {
-		System.out.println("수행할 작업의 번호를 입력하세요.");
-		System.out.println("1) 문서 다운로드");
-		System.out.println("2) 동영상 자동재생");
+		int selectedJob = console.selectJob();
 		
-		Scanner userInput = new Scanner(System.in);
-		int selectedJob = userInput.nextInt();
-		
-		if(selectedJob == 1) {
+		selectJob(selectedJob);
+	}
+	
+	private static void selectJob(int jobNum) {
+		if(jobNum == 1) {
 			requestUserLogin();
 			
 			GetDocumentManager manager = new GetDocumentManager(service);
 			manager.getDocument();
 		}
-		
-		userInput.close();
+		else if(jobNum == 2) {
+			// TODO: 새로운 manager를 생성해서 간단한 기능을 보여주기
+		}
+		else {
+			
+		}
 	}
 	
-	public static void requestUserLogin() {
+	private static void requestUserLogin() {
 		Scanner userInput = new Scanner(System.in);
 		
 		System.out.println("해당 기능은 ecampus로그인이 필요합니다.");
@@ -43,5 +47,6 @@ public class Client {
 			System.out.println();
 			requestUserLogin();
 		}
+		System.out.println();
 	}
 }
