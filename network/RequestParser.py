@@ -15,9 +15,9 @@ class RequestParser:
             for key, value in json_documentlist.items():
                 if isinstance(value, list):
                     for v in value:
-                        documentlist += key + "/" + v + "\n"
+                        documentlist += key.strip() + "/" + v + "\n"
                 else:
-                    documentlist += key + "/" + value + "\n"
+                    documentlist += key.strip() + "/" + value + "\n"
 
             document_list = documentlist[:-1]
             return document_list

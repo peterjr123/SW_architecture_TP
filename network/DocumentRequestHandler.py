@@ -15,7 +15,7 @@ class DocumentRequestHandler:
     def __init__(self, port, service):
         self.port = port
         self.service = service
-        self.rs = DocumentResponseSender()
+        self.response_sender = DocumentResponseSender()
         self.parser = RequestParser()
         self.host = 'localhost'
 
@@ -27,9 +27,9 @@ class DocumentRequestHandler:
         id, pw = self.parser.get_pwid(request)
         result = self.service.login(id, pw)
         if result:
-            self.rs.success_login_response(client_socket)
+            self.response_sender.success_login_response(client_socket)
         else:
-            self.rs.failed_response(client_socket)
+            self.response_sender.failed_response(client_socket)
 
     def getDocumentList(self, request, client_socket):
         type = self.parser.get_type(request)
@@ -37,9 +37,9 @@ class DocumentRequestHandler:
         print("list download complete")
         if json_documentlist is not None:
             documentlist = self.parser.documentlist_parser(json_documentlist)
-            self.rs.getDocumentList_response(client_socket, documentlist)
+            self.response_sender.getDocumentList_response(client_socket, documentlist)
         else:
-            self.rs.failed_response(client_socket)
+            self.response_sender.failed_response(client_socket)
 
     def getDocument(self, request, client_socket):
         missing_document = self.parser.document_parser(request)
@@ -48,7 +48,7 @@ class DocumentRequestHandler:
         documents_path = documents[next(iter(documents))]  # 과목명에 대한 파일 경로 list
         print("파일 다운로드: %s" % documents_path)
         for document_path in documents_path:
-            self.rs.getDocument_response(client_socket, document_path)
+            self.response_sender.getDocument_response(client_socket, document_path)
 
 
     def listen(self):
