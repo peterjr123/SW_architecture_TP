@@ -68,9 +68,9 @@ class DocumentRequestHandler:
         filenames = {}
         filenames = self.service.getDocument(missing_document)
         for value in filenames.values():
-            filename = value.split("/")[:-1]
+            filename = value[0].split("/")[:-1]
             data_transferred = 0
-            file_path = value
+            file_path = value[0]
 
             with open(file_path, 'rb') as f:
                 try:

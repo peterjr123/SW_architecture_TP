@@ -28,6 +28,6 @@ class GetDocumentService:
 
 
     def getDocument(self, missingDocument):
-            filenames = self.document_crawler.getDocument(missingDocument)
+            filenames = self.document_crawler.downloadDocument(missingDocument)
             return filenames
 
