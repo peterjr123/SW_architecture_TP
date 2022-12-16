@@ -9,112 +9,61 @@ sys.path.append(path + "/service/")
 
 from DocumentResponseSender import DocumentResponseSender
 from service.GetDocumentService import GetDocumentService
-
+from RequestParser import RequestParser
 
 class DocumentRequestHandler:
     def __init__(self, port, service):
         self.port = port
         self.service = service
         self.rs = DocumentResponseSender()
+        self.parser = RequestParser()
         self.host = 'localhost'
 
     def start(self):
-        self.__listen()
+        self.listen()
 
     # 로그인
     def login(self, request, client_socket):
-        request_body = request.split("\r\n\r\n")[1]
-        id, pw = request_body.split("/")
+        id, pw = self.parser.get_pwid(request)
         result = self.service.login(id, pw)
         if result:
             self.rs.success_login_response(client_socket)
         else:
             self.rs.failed_response(client_socket)
 
-    # json string을 dictionary로 받아와서 문자열("course/material")로 변환
-    def __documentlist_parser(self, json_documentlist):
-        documentlist = ""
-        for key, value in json_documentlist.items():
-            if isinstance(value, list):
-                for v in value:
-                    documentlist += key + "/" + v + "\n"
-            else:
-                documentlist += key + "/" + value + "\n"
-
-        document_list = documentlist[:-1]
-        return document_list
-
     def getDocumentList(self, request, client_socket):
-        type = request.split("\r\n\r\n")[1]
+        type = self.parser.get_type(request)
         json_documentlist = self.service.getDocumentList(type)
         if json_documentlist is not None:
-            documentlist = self.__documentlist_parser(json_documentlist)
+            documentlist = self.parser.document_parser(json_documentlist)
             self.rs.getDocumentList_response(client_socket, documentlist)
         else:
             self.rs.failed_response(client_socket)
 
-    # missing_document를 dictionary로 만듦.
-    def __document_parser(self, request):
-        documentlist = []
-        request_body = request.split("\r\n\r\n")[1]
-        data_list = request_body.split("\r\n")
-        for data in data_list:
-            print("data: " + data)
-            documentlist.append(data)
-        return documentlist
-
     def getDocument(self, request, client_socket):
-        missing_document = self.__document_parser(request)
-        filenames = {}
-        filenames = self.service.getDocument(missing_document)
-        for value in filenames.values():
-            filename = value[0].split("/")[:-1]
-            data_transferred = 0
-            file_path = value[0]
-
-            with open(file_path, 'rb') as f:
-                try:
-                    data = f.read(1024)
-                    while data:
-                        data_transferred += client_socket.send(data)
-                        data = f.read(1024)
-                except Exception as ex:
-                    print(ex)
-            print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
+        missing_document = self.parser.document_parser(request)
+        documents = self.service.getDocument(missing_document)
+        course_name = next(iter(documents))  # 과목명
+        documents_path = documents[next(iter(documents))]  # 과목명에 대한 파일 경로 list
+        print("파일 다운로드: %s" % documents_path)
+        for document_path in documents_path:
+            self.rs.getDocument_response(client_socket, document_path)
 
 
-
-        # for filename in filenames:
-        #     data_transferred = 0
-        #     print("파일 %s 전송 시작" % filename)
-        #     file_path = path + "/" + filename
-        #     with open(file_path, 'rb') as f:
-        #         try:
-        #             data = f.read(1024)
-        #             while data:
-        #                 data_transferred += client_socket.send(data)
-        #                 data = f.read(1024)
-        #         except Exception as ex:
-        #             print(ex)
-        #     print("전송완료 %s, 전송량 %d" % (filename, data_transferred))
-
-    def __listen(self):
+    def listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(('localhost', 3333))
         server_socket.listen()
         print('server listening...')
-        count = 0
         while (True):
-            if count == 3:
-                break
+
             client_soc, addr = server_socket.accept()
             print('connected client addr:', addr)
 
             data = client_soc.recv(10000)
             request = data.decode()
 
-            count += 1
             if "HTTP/" in request:
                 if "POST /login" in request:  # response for login
                     self.login(request, client_soc)
