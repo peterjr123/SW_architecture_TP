@@ -19,7 +19,7 @@ class DocumentRequestHandler:
         self.host = 'localhost'
 
     def start(self):
-        self.__listen()
+        self.listen()
 
     # 로그인
     def login(self, request, client_socket):
@@ -72,7 +72,7 @@ class DocumentRequestHandler:
         for document_path in documents_path:
             self.rs.getDocument_response(client_socket, document_path)
 
-    def __listen(self):
+    def listen(self):
         server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server_socket.bind(('localhost', 3333))
