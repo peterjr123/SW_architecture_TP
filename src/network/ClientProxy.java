@@ -8,8 +8,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -17,12 +20,7 @@ import data.DocumentList;
 
 public class ClientProxy {
 	private DocumentRequestSender requestSender;
-	private RequestParser requestparser;
-	
-	private BufferedReader readStream;
-	private PrintWriter writeStream;
-	private BufferedOutputStream writeFile;
-	private BufferedInputStream readFile;
+	private ResponseParser responseparser;
 	
 	private int port = 3333;
 	private String serverURL = "localhost";
@@ -33,42 +31,47 @@ public class ClientProxy {
 		System.out.println("로그인 결과: " + result);
 		
 //		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
-		service.downloadDocuments(null, "C:\\Users\\82103\\Desktop\\client");
+//		service.downloadDocuments(null, "C:\\Users\\82103\\Desktop\\client");
 		
-//		DocumentList list = service.getDocumentList("강의자료");
-//		for(int i = 0; i < list.length(); i++) {
-//			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
-//		}
+		DocumentList list = service.getDocumentList("강의자료");
+		for(int i = 0; i < list.length(); i++) {
+			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
+		}
 	}
 	
 	public ClientProxy() {
 		this.requestSender = new DocumentRequestSender(this.serverURL);
-		this.requestparser = new RequestParser();
+		this.responseparser = new ResponseParser();
+	}
+	
+	private String loginImpl(BufferedReader readStream, PrintWriter writeStream, String id, String password) throws IOException {
+
+		// server에게 request 보냄.
+		requestSender.sendLoginRequest(writeStream, id, password);
+		
+		String line = null;
+		StringBuilder strBuilder = new StringBuilder();
+		while ((line = readStream.readLine()) != null) {
+			strBuilder.append(line + "\r\n");
+		}
+		return strBuilder.toString();
 	}
 	
 	public boolean login(String id, String password) {
 		Socket socket = null;
+		BufferedReader readStream = null;
+		PrintWriter writeStream = null;
 		
 		try {
 			socket = new Socket(serverURL, port);
 			readStream = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			writeStream = new PrintWriter(socket.getOutputStream());
-
-			// server에게 request 보냄.
-			requestSender.sendLoginRequest(writeStream, id, password);
-
-			socket.shutdownOutput();
 			
-			String line = null;
-			StringBuilder strBuilder = new StringBuilder();
-			while ((line = readStream.readLine()) != null) {
-				strBuilder.append(line + "\r\n");
-			}
-			String response = strBuilder.toString();
+			String response = loginImpl(readStream, writeStream, id, password);
 			
-			Boolean result = requestparser.loginResponseParser(response);
+			Boolean result = responseparser.loginResponseParser(response);
 			return result;
-
+			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} finally {
@@ -85,32 +88,35 @@ public class ClientProxy {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-
 		}
 		return false;
 	}
 	
-	public DocumentList getDocumentList(String documentType) {
-		Socket socket = null;
-		DocumentList documentlist = null;
-		
-		try {
-			socket = new Socket(serverURL, port);
-			readStream = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-			writeStream = new PrintWriter(socket.getOutputStream());
-
-			// server에게 request 보냄.
+	private String getDocumentListImpl(BufferedReader readStream, PrintWriter writeStream, String documentType) throws IOException {
+		// server에게 request 보냄.
 			requestSender.sendDocumentListRequest(writeStream, documentType); //documenttype :강의자료... etc
-			socket.shutdownOutput();
 			
 			String line = null;
 			StringBuilder strBuilder = new StringBuilder();
 			while ((line = readStream.readLine()) != null) {
 				strBuilder.append(line + "\r\n");
 			}
-			String response = strBuilder.toString();
+			return strBuilder.toString();
+	}
+	
+	public DocumentList getDocumentList(String documentType) {
+		Socket socket = null;
+		DocumentList documentlist = null;
+		BufferedReader readStream = null;
+		PrintWriter writeStream = null;
+		
+		try {
+			socket = new Socket(serverURL, port);
+			readStream = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+			writeStream = new PrintWriter(socket.getOutputStream());
+			String response = getDocumentListImpl(readStream, writeStream, documentType);
 			
-			documentlist = requestparser.getDocumentResponseParser(response);
+			documentlist = responseparser.getDocumentResponseParser(response);
 			return documentlist;
 
 		} catch (IOException e1) {
@@ -133,16 +139,13 @@ public class ClientProxy {
 
 	}
 	
-	private void downloadSingleDocument(Socket socket, String document, String destination) throws IOException {
+	private void downloadSingleDocument(PrintWriter writeStream, BufferedInputStream readFile, BufferedOutputStream writeFile, String document, String destination) throws IOException {
+		
 		File saveDirectory = new File(destination);
 		File saveFile = new File(saveDirectory, document);
-		
-		writeStream = new PrintWriter(socket.getOutputStream());
+		;
 		String requestBody = document;
 		requestSender.sendDocumentRequest(writeStream, requestBody); 
-		socket.shutdownOutput();
-	
-		readFile = new BufferedInputStream(new DataInputStream(socket.getInputStream()));
 		writeFile = new BufferedOutputStream(new FileOutputStream(saveFile));
 		
 		byte[] temp = new byte[1024];
@@ -155,23 +158,24 @@ public class ClientProxy {
 		writeFile.flush();
 	}
 
-	public void downloadDocuments(String document, String destination) {
-		Socket socket = null;
+	public void downloadDocuments(DocumentList documentList, String destination) {
 
-		ArrayList<String> materials = new ArrayList<String>();
-		materials.add("03-Architecture-Design Principles(15)-v1.pdf");
-		materials.add("07-JPattV1-Ch5-Partitioning Patterns V03-221011.pdf");
-		materials.add("Chapter3 Threads.key.pdf");
-		
-		for(int i = 0; i < materials.size(); i++) {
+		for(int i = 0; i < documentList.length(); i++) {
+			Socket socket = null;
+			PrintWriter writeStream = null;
+			BufferedInputStream readFile = null;
+			BufferedOutputStream writeFile = null;
+			
 			try {
 				socket = new Socket("localhost", 3333);
-				downloadSingleDocument(socket, document, destination);
+				writeStream = new PrintWriter(socket.getOutputStream());
+				readFile = new BufferedInputStream(new DataInputStream(socket.getInputStream()));
+				String documentName = documentList.getDocumentName(i);
+				downloadSingleDocument(writeStream, readFile, writeFile, documentName, destination);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}finally {
 				try {
-
 					if (writeStream != null)
 						writeStream.close();
 					
@@ -180,6 +184,7 @@ public class ClientProxy {
 					
 					if (writeFile != null)
 						writeFile.close();
+					
 					if (socket != null)
 						socket.close();
 				} catch (IOException e) {

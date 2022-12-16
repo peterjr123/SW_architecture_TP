@@ -2,7 +2,7 @@ package network;
 
 import data.DocumentList;
 
-public class RequestParser {
+public class ResponseParser {
 	
 	// 올바른 Response일 때만 로그인 이벤트 처리
 	public boolean loginResponseParser(String response) {
