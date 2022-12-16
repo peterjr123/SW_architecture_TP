@@ -11,28 +11,28 @@ public class DocumentRequestSender {
 		this.host = serverURL;
 	}
 	
-	public void sendLoginRequest(PrintWriter pw, String id, String password) {
-		pw.println("POST /login HTTP/1.1");
-		pw.println("Host: "+host);
-		pw.println();
-		pw.println(id+"/"+password);  //requestbody
-		pw.flush();
+	public void sendLoginRequest(PrintWriter writeStream, String id, String password) {
+		writeStream.println("POST /login HTTP/1.1");
+		writeStream.println("Host: "+host);
+		writeStream.println();
+		writeStream.println(id+"/"+password);  //requestbody
+		writeStream.flush();
 	}
 	
-	public void sendDocumentListRequest(PrintWriter pw,String requestbody) {
-		pw.println("GET /documentlist HTTP/1.1"); 
-		pw.println("Host: "+host);
-		pw.println();
-		pw.print(requestbody);
-		pw.flush();
+	public void sendDocumentListRequest(PrintWriter writeStream,String requestbody) {
+		writeStream.println("GET /documentlist HTTP/1.1"); 
+		writeStream.println("Host: "+host);
+		writeStream.println();
+		writeStream.print(requestbody);
+		writeStream.flush();
 	}
 	
 	
-	public void sendDocumentRequest(PrintWriter pw, String requestBody) throws IOException {
-		pw.println("GET /document HTTP/1.1"); 
-		pw.println("Host: "+host);
-		pw.println();
-		pw.print(requestBody);
-		pw.flush();
+	public void sendDocumentRequest(PrintWriter writeStream, String requestBody) throws IOException {
+		writeStream.println("GET /document HTTP/1.1"); 
+		writeStream.println("Host: "+host);
+		writeStream.println();
+		writeStream.print(requestBody);
+		writeStream.flush();
 	}
 }
