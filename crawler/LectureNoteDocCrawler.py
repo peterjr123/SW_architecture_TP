@@ -19,7 +19,8 @@ class LectureNoteDocCrawler(DocumentCrawler):
         self.driver = None
         self.driver_path = None
         # 절대경로이므로, 컴퓨터마다 수정해 주어야 함.
-        self.downloadAbsolutePath = "C:/Users/joon/Downloads" 
+        # self.downloadAbsolutePath = "C:/Users/joon/Downloads"
+        self.downloadAbsolutePath = "C:/Users/82103/Downloads"
 
     def downloadDocumentByCrawling(self, documentList):
         filePathList = []

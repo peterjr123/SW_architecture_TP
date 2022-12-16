@@ -9,6 +9,7 @@ sys.path.append(path + "/service/")
 
 from DocumentResponseSender import DocumentResponseSender
 from service.GetDocumentService import GetDocumentService
+from RequestParser import RequestParser
 
 class DocumentRequestHandler:
     def __init__(self, port, service):
@@ -33,8 +34,9 @@ class DocumentRequestHandler:
     def getDocumentList(self, request, client_socket):
         type = self.parser.get_type(request)
         json_documentlist = self.service.getDocumentList(type)
+        print("list download complete")
         if json_documentlist is not None:
-            documentlist = self.parser.document_parser(json_documentlist)
+            documentlist = self.parser.documentlist_parser(json_documentlist)
             self.rs.getDocumentList_response(client_socket, documentlist)
         else:
             self.rs.failed_response(client_socket)
