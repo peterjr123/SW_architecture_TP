@@ -24,14 +24,16 @@ public class ClientProxy {
 	private int port = 3333;
 	private String serverURL = "localhost";
 	private DocumentList documentlist;
+	private RequestParser requestparser;
 	private String DocumentType = "";
 	
 	public static void main(String[] args) {
 		ClientProxy service = new ClientProxy();
-		boolean result = service.login("peterjr123", "peterjr123!");
+		boolean result = service.login("qqazws7", "lookat159~");
 		System.out.println("로그인 결과: " + result);
 		
-		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
+//		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
+		service.downloadDocument(null, "C:\\Users\\82103\\Desktop\\client");
 		
 //		DocumentList list = service.getDocumentList("강의자료");
 //		for(int i = 0; i < list.length(); i++) {
@@ -42,8 +44,9 @@ public class ClientProxy {
 	public ClientProxy() {
 		this.drs = new DocumentRequestSender(this.serverURL);
 		this.documentlist = new DocumentList();
+		this.requestparser = new RequestParser();
 	}
-
+	
 	public boolean login(String id, String password) {
 		
 		Socket socket = null;
@@ -65,13 +68,9 @@ public class ClientProxy {
 			}
 
 			String response = s.toString();
-
-			// 올바른 Response일 때만 로그인 이벤트 처리
-			if (response.indexOf("HTTP/") != -1) {
-				if (response.indexOf("200 OK") != -1) {
-					return true;
-				}
-			}
+			
+			Boolean result = requestparser.loginResponseParser(response);
+			return true;
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -117,21 +116,10 @@ public class ClientProxy {
 
 			String response = s.toString();
 			
-			if (response.indexOf("HTTP/") != -1) {
-				if (response.indexOf("200 OK") != -1) {
-					if(response.indexOf("Content-Length: 0") == -1) { //body가 있으면 
-						String responsebody  = response.split("\r\n\r\n")[1];
-						String[] data_list = responsebody.split("\n");
-						for(String data : data_list) {
-							String course = data.split("/")[0];
-							String material = data.split("/")[1].strip();
-							documentlist.addDocument(course, material);
-						}
-					}
-				}
-			}
 			
-			return documentlist;
+			this.documentlist = requestparser.getDocumentResponseParser(response);
+			
+			return this.documentlist;
 
 		} catch (IOException e1) {
 			e1.printStackTrace();
@@ -153,29 +141,16 @@ public class ClientProxy {
 
 	}
 	
-	//DocumentList 객체를 string으로 바꿔서 requestBody에 담는다.
-	private String requestBodyBuilder(DocumentList documentlist) {
-		StringBuilder sb = new StringBuilder();
-		for(int i = 0; i < documentlist.length(); i++) {
-			String course = documentlist.getCourse(i);
-			String material = documentlist.getDocumentName(i);
-			sb.append(course+"/"+material+"\r\n"); // > 소프트웨어 아키텍처/09-JPattV1-Ch7-Structural Patterns V02-221010\r\n
-		
-		}		
-		String requestBody = sb.toString();
-		return requestBody;
-	}
-	
-	
+
 	// dest: C: ~ 건국대학교/4-2
 	// dest + 과목(변수)/강의자료/material(변수)
-	// 만약에 이렇게 하면 DocumentList()에서 indexof() 함수 추가해서 
-	// material이름으로 course명 가져와서 경로 완성시키기
-	
+
 	public void downloadDocument(DocumentList documentlist, String dest) {
 		Socket socket = null;
 		File saveDir = null;
 		File saveFile = null;
+		
+		DocumentList dl = documentlist;
 		
 		ArrayList<String> materials = new ArrayList<String>();
 		materials.add("03-Architecture-Design Principles(15)-v1.pdf");
@@ -207,6 +182,7 @@ public class ClientProxy {
 				while((length = bis.read(temp)) > 0){
 					bos.write(temp , 0, length); //지정한 경로에 받아오기.
 				}
+				System.out.println("파일 다운로드 완료: "+dest);
 				bos.flush();
 				
 			} catch (IOException e1) {
