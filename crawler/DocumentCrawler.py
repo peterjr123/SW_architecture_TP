@@ -3,17 +3,66 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.support.ui import WebDriverWait
+
 import chromedriver_autoinstaller
 import os
 import time
 
 class DocumentCrawler():
+    def getDocumentList(self):
+        documentList = {}
+        subjectNames = []
+
+        if self.__isLoggedIn() == False:
+            if(self.validAccount(self.id, self.pw) == False):
+                print("invalid account")
+                return
+
+            # self.driver.implicitly_wait(1)
+
+            self.__login(self.id, self.pw)
+
+        subjectNames = self.__getSubjectNameList()
+
+        for subjectName in subjectNames:
+            if ' ' in subjectName:
+                print('space on subjectName')
+
+        for subjectName in subjectNames:
+            self.__accessSubjectPage(subjectName)
+            list = self.createDocumentListByCrawling()
+            if list:
+                documentList[subjectName] = list
+            self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+        return documentList
+
+    def downloadSingleDocument(self, courseName, documentName):
+        downloadedPath = None
+
+        if self.__isLoggedIn() == False:
+            if(self.validAccount(self.id, self.pw) == False):
+                print("invalid account")
+                return
+
+            self.__login(self.id, self.pw)
+
+        subjectNames = self.__getSubjectNameList()
+
+        for subjectName in subjectNames:
+            if courseName == subjectName:
+                self.__accessSubjectPage(subjectName)
+                list = self.downloadDocumentByCrawling({documentName})
+                if list:
+                    downloadedPath = list[subjectName]
+                self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+        return downloadedPath
 
     def downloadDocument(self, documentList):
         filePathListPerSubject = {}
 
         if self.__isLoggedIn() == False:
-            if(self.validAccount() == False):
+            if(self.validAccount(self.id, self.pw) == False):
                 print("invalid account")
                 return
 
@@ -73,10 +122,15 @@ class DocumentCrawler():
 
     def __getSubjectNameList(self):
         subjectNames = []
+        # temps = self.driver.find_elements(By.CLASS_NAME, 'sub_open')
+        # for temp in temps:
+        #     print("found: ", temp.text)
+
         subjects = self.driver.find_elements(By.CSS_SELECTOR, '.term_info ~ li')
         for subject in subjects:
             if(subject.get_attribute('class') != "term_info"):
-                rawName = subject.find_element(By.CLASS_NAME, 'sub_open').text
+                rawName = subject.find_element(By.TAG_NAME, 'em').text
+                # rawName = subject.find_element(By.CLASS_NAME, 'sub_open').text
                 subjectNames.append(rawName[rawName.find(']')+1 : rawName.rfind('(')])
             else: 
                 break
@@ -90,29 +144,7 @@ class DocumentCrawler():
             print('not logged in -> trying to login...')
             return False
 
-    def getDocumentList(self):
-        documentList = {}
-        subjectNames = []
-
-        if self.__isLoggedIn() == False:
-            if(self.validAccount(self.id, self.pw) == False):
-                print("invalid account")
-                return
-
-            # self.driver.implicitly_wait(1)
-
-            self.__login(self.id, self.pw)
-
-        subjectNames = self.__getSubjectNameList()
-
-        for subjectName in subjectNames:
-            self.__accessSubjectPage(subjectName)
-            list = self.createDocumentListByCrawling()
-            if list:
-                documentList[subjectName] = list
-            self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
-        
-        return documentList
+    
     
     
 
