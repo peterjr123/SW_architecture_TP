@@ -22,11 +22,8 @@ public class ClientProxy {
 
 	public static void main(String[] args) {
 		ClientProxy service = new ClientProxy();
-		boolean result = service.login("qqazws7", "lookat159~");
+		boolean result = service.login("peterjr123", "peterjr123!");
 		System.out.println("로그인 결과: " + result);
-		
-//		service.downloadDocument(null, "C:\\Users\\joon\\vscode-workspace\\python-workspace\\software_architecture\\test");
-//		service.downloadDocuments(null, "C:\\Users\\82103\\Desktop\\client");
 		
 		DocumentList list = service.getDocumentList("강의자료");
 		for(int i = 0; i < list.length(); i++) {
@@ -66,7 +63,6 @@ public class ClientProxy {
 			String response = loginImpl(readStream, writeStream, id, password);
 			Boolean result = responseParser.loginResponseParser(response);
 			return result;
-			
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} finally {
@@ -156,7 +152,6 @@ public class ClientProxy {
 	}
 
 	public void getDocuments(DocumentList documentList, String destination) {
-
 		for(int i = 0; i < documentList.length(); i++) {
 			Socket socket = null;
 			PrintWriter writeStream = null;

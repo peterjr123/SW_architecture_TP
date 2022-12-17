@@ -29,6 +29,7 @@ public class Directory {
 		}
 	}
 	
+	// return false when directory already exist
 	private boolean createSubDirectoryImpl(String name) throws DirectoryNotFoundException {
 		File newDirectory = new File(this.path, name);
 		if(!newDirectory.exists() && !newDirectory.isFile()) {
@@ -45,7 +46,7 @@ public class Directory {
 		try {
 			result = createSubDirectoryImpl(name);
 		}
-		catch(DirectoryNotFoundException ex) {
+		catch(DirectoryNotFoundException ex) { // impossible to happen
 			ex.printStackTrace();
 		}
 		return result;
@@ -95,6 +96,11 @@ public class Directory {
 		return path;
 	}
 	
+	public String getAbsolutePath() {
+		File directory = new File(path);
+		return directory.getAbsolutePath();
+	}
+	
 	// Override methods
 	@Override
 	public String toString() {
@@ -109,4 +115,6 @@ public class Directory {
 		
 		return str;
 	}
+
+	
 }
