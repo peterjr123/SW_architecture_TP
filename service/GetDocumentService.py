@@ -4,16 +4,14 @@ from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
 class GetDocumentService:
 
     def __init__(self):
-        self.id = "id"
-        self.pwd = "pwd"
-        self.document_crawler = LectureNoteDocCrawler(self.id, self.pwd)
+        self.document_crawler = LectureNoteDocCrawler(self.id, self.password)
 
-    def login(self, id, pw):
-        valid = self.document_crawler.validAccount(id, pw)
+    def login(self, id, password):
+        valid = self.document_crawler.validAccount(id, password)
         if valid:
             return True
         else:
-            print("id/pw is not valid")
+            print("id/password is not valid")
             return False
 
 
@@ -27,7 +25,7 @@ class GetDocumentService:
         # else type == "과제":
 
 
-    def getDocument(self, missingDocument):
-            filenames = self.document_crawler.downloadDocument(missingDocument)
+    def getDocument(self, course_name, document_name):
+            filenames = self.document_crawler.downloadDocument(course_name, document_name)
             return filenames
 
