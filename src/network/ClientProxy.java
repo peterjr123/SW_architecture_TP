@@ -135,7 +135,7 @@ public class ClientProxy {
 		while((length = readFile.read(temp)) > 0){
 			writeFile.write(temp , 0, length);
 		}
-		System.out.println("파일 다운로드 완료: "+destination);
+		System.out.println("파일 다운로드 완료: "+destination+ "\\" +documentName);
 		writeFile.flush();
 		
 	}
