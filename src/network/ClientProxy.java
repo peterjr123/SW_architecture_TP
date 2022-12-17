@@ -24,17 +24,6 @@ public class ClientProxy {
 	
 	private int port = 3333;
 	private String serverURL = "localhost";
-
-	public static void main(String[] args) {
-		ClientProxy service = new ClientProxy();
-		boolean result = service.login("peterjr123", "peterjr123!");
-		System.out.println("로그인 결과: " + result);
-		
-		DocumentList list = service.getDocumentList("강의자료");
-		for(int i = 0; i < list.length(); i++) {
-			System.out.println(list.getCourse(i) + ": " + list.getDocumentName(i));
-		}
-	}
 	
 	public ClientProxy() {
 		this.requestSender = new DocumentRequestSender(this.serverURL);
@@ -139,7 +128,7 @@ public class ClientProxy {
 		
 		File saveDirectory = new File(destination);
 		File saveFile = new File(saveDirectory, document);
-		;
+		
 		String requestBody = document;
 		requestSender.sendDocumentRequest(writeStream, requestBody); 
 		writeFile = new BufferedOutputStream(new FileOutputStream(saveFile));
