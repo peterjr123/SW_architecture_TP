@@ -79,7 +79,7 @@ public class GetDocumentManager {
 		for(String courseName : classifiedDocumentList.keySet()) {
 			if(classifiedDocumentTypeDirectory.containsKey(courseName)) {
 				System.out.println(courseName + "의 강의자료 요청됨...");
-				service.downloadDocument(classifiedDocumentList.get(courseName), classifiedDocumentTypeDirectory.get(courseName).getPath());
+				service.downloadDocuments(classifiedDocumentList.get(courseName), classifiedDocumentTypeDirectory.get(courseName).getPath());
 			}
 		}
 	}
