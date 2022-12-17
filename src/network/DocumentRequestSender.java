@@ -1,6 +1,5 @@
 package network;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
 public class DocumentRequestSender {
@@ -11,24 +10,24 @@ public class DocumentRequestSender {
 		this.host = serverURL;
 	}
 	
-	public void sendLoginRequest(PrintWriter writeStream, String id, String password) {
+	public void sendLoginRequest(PrintWriter writeStream, String requestBody) {
 		writeStream.println("POST /login HTTP/1.1");
 		writeStream.println("Host: "+host);
 		writeStream.println();
-		writeStream.println(id+"/"+password);  //requestbody
+		writeStream.println(requestBody);
 		writeStream.flush();
 	}
 	
-	public void sendDocumentListRequest(PrintWriter writeStream,String requestbody) {
+	public void sendDocumentListRequest(PrintWriter writeStream,String requestBody) {
 		writeStream.println("GET /documentlist HTTP/1.1"); 
 		writeStream.println("Host: "+host);
 		writeStream.println();
-		writeStream.print(requestbody);
+		writeStream.print(requestBody);
 		writeStream.flush();
 	}
 	
 	
-	public void sendDocumentRequest(PrintWriter writeStream, String requestBody) throws IOException {
+	public void sendDocumentRequest(PrintWriter writeStream, String requestBody){
 		writeStream.println("GET /document HTTP/1.1"); 
 		writeStream.println("Host: "+host);
 		writeStream.println();
