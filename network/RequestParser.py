@@ -25,7 +25,5 @@ class RequestParser:
     # missing_document를 list로 만듦.
     def document_parser(self, request):
         request_body = request.split("\r\n\r\n")[1]
-        document_info = request_body.split("/")
-        course_name = document_info[0].strip()
-        document_name = document_info[1].strip()
+        course_name, document_name = request_body.split("/")
         return course_name, document_name
