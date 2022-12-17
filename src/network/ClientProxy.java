@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 
 import data.DocumentList;
@@ -123,15 +124,26 @@ public class ClientProxy {
 	private void getSingleDocument(PrintWriter writeStream, BufferedInputStream readFile, BufferedOutputStream writeFile, 
 					String courseName, String documentName, String destination) throws IOException {
 		File saveDirectory = new File(destination);
-		File saveFile = new File(saveDirectory, documentName);
 		String requestBody = courseName+"/"+documentName;
+		if(documentName.indexOf(':') != -1) {
+			documentName = documentName.replace(":", "");
+		}
+		
 		// client sends request to server with missing document
 		requestSender.sendDocumentRequest(writeStream, requestBody); 
-		writeFile = new BufferedOutputStream(new FileOutputStream(saveFile));
+		
 		
 		byte[] temp = new byte[1024];
 		int length = 0;
-		
+		length = readFile.read(temp);
+		if(length == -1) {
+			System.out.println("cannot download file: " + documentName);
+			return;
+		}
+		File saveFile = new File(saveDirectory, documentName);
+		writeFile = new BufferedOutputStream(new FileOutputStream(saveFile));
+		writeFile.write(temp , 0, length);
+			
 		while((length = readFile.read(temp)) > 0){
 			writeFile.write(temp , 0, length);
 		}
@@ -155,9 +167,11 @@ public class ClientProxy {
 				String documentName = documentList.getDocumentName(i);
 				
 				getSingleDocument(writeStream, readFile, writeFile, courseName, documentName, destination);
+			} catch (ConnectException ex) {
+				System.out.println("cannot download file");
 			} catch (IOException e1) {
 				e1.printStackTrace();
-			}finally {
+			} finally {
 				try {
 					if (writeStream != null)
 						writeStream.close();
