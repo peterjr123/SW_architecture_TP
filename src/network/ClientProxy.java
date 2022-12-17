@@ -5,22 +5,17 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import data.DocumentList;
 
 public class ClientProxy {
 	private DocumentRequestSender requestSender;
-	private ResponseParser responseparser;
+	private ResponseParser responseParser;
 	
 	private int port = 3333;
 	private String serverURL = "localhost";
@@ -41,13 +36,14 @@ public class ClientProxy {
 	
 	public ClientProxy() {
 		this.requestSender = new DocumentRequestSender(this.serverURL);
-		this.responseparser = new ResponseParser();
+		this.responseParser = new ResponseParser();
 	}
 	
-	private String loginImpl(BufferedReader readStream, PrintWriter writeStream, String id, String password) throws IOException {
-
-		// server에게 request 보냄.
-		requestSender.sendLoginRequest(writeStream, id, password);
+	private String loginImpl(BufferedReader readStream, PrintWriter writeStream, 
+								String id, String password) throws IOException {
+		// clients send request to server with id/password
+		String requestBody = id+"/"+password;
+		requestSender.sendLoginRequest(writeStream, requestBody);
 		
 		String line = null;
 		StringBuilder strBuilder = new StringBuilder();
@@ -68,8 +64,7 @@ public class ClientProxy {
 			writeStream = new PrintWriter(socket.getOutputStream());
 			
 			String response = loginImpl(readStream, writeStream, id, password);
-			
-			Boolean result = responseparser.loginResponseParser(response);
+			Boolean result = responseParser.loginResponseParser(response);
 			return result;
 			
 		} catch (IOException e1) {
@@ -93,8 +88,8 @@ public class ClientProxy {
 	}
 	
 	private String getDocumentListImpl(BufferedReader readStream, PrintWriter writeStream, String documentType) throws IOException {
-		// server에게 request 보냄.
-			requestSender.sendDocumentListRequest(writeStream, documentType); //documenttype :강의자료... etc
+			// clients send request to server with document type
+			requestSender.sendDocumentListRequest(writeStream, documentType); //document type :강의자료... etc
 			
 			String line = null;
 			StringBuilder strBuilder = new StringBuilder();
@@ -114,9 +109,9 @@ public class ClientProxy {
 			socket = new Socket(serverURL, port);
 			readStream = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
 			writeStream = new PrintWriter(socket.getOutputStream());
-			String response = getDocumentListImpl(readStream, writeStream, documentType);
 			
-			documentlist = responseparser.getDocumentResponseParser(response);
+			String response = getDocumentListImpl(readStream, writeStream, documentType);
+			documentlist = responseParser.getDocumentResponseParser(response);
 			return documentlist;
 
 		} catch (IOException e1) {
@@ -139,12 +134,13 @@ public class ClientProxy {
 
 	}
 	
-	private void downloadSingleDocument(PrintWriter writeStream, BufferedInputStream readFile, BufferedOutputStream writeFile, String document, String destination) throws IOException {
-		
+	@SuppressWarnings("resource")
+	private void getSingleDocument(PrintWriter writeStream, BufferedInputStream readFile, BufferedOutputStream writeFile, 
+					String courseName, String documentName, String destination) throws IOException {
 		File saveDirectory = new File(destination);
-		File saveFile = new File(saveDirectory, document);
-		;
-		String requestBody = document;
+		File saveFile = new File(saveDirectory, documentName);
+		String requestBody = courseName+"/"+documentName;
+		// client sends request to server with missing document
 		requestSender.sendDocumentRequest(writeStream, requestBody); 
 		writeFile = new BufferedOutputStream(new FileOutputStream(saveFile));
 		
@@ -156,9 +152,10 @@ public class ClientProxy {
 		}
 		System.out.println("파일 다운로드 완료: "+destination);
 		writeFile.flush();
+		
 	}
 
-	public void downloadDocuments(DocumentList documentList, String destination) {
+	public void getDocuments(DocumentList documentList, String destination) {
 
 		for(int i = 0; i < documentList.length(); i++) {
 			Socket socket = null;
@@ -170,8 +167,10 @@ public class ClientProxy {
 				socket = new Socket("localhost", 3333);
 				writeStream = new PrintWriter(socket.getOutputStream());
 				readFile = new BufferedInputStream(new DataInputStream(socket.getInputStream()));
+				String courseName = documentList.getCourse(i);
 				String documentName = documentList.getDocumentName(i);
-				downloadSingleDocument(writeStream, readFile, writeFile, documentName, destination);
+				
+				getSingleDocument(writeStream, readFile, writeFile, courseName, documentName, destination);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}finally {
