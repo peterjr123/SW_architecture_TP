@@ -45,8 +45,7 @@ class DocumentRequestHandler:
     # Server gets document from web site
     def __getDocument(self, request, client_socket):
         course_name, document_name = self.parser.document_parser(request)
-        documents = self.service.getDocument(course_name, document_name)
-        document_path = documents.split("/")[:-1].strip()
+        document_path = self.service.getDocument(course_name, document_name)
         print("파일 다운로드: %s" % document_path)
         self.response_sender.getDocument_response(client_socket, document_path)
 

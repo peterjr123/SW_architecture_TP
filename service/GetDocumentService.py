@@ -4,6 +4,9 @@ from crawler.LectureNoteDocCrawler import LectureNoteDocCrawler
 class GetDocumentService:
 
     def __init__(self):
+        # TODO: Crawler의 id와 pw를 처리하는 방식 단일화 할 것.
+        self.id = "id"
+        self.password = "password"
         self.document_crawler = LectureNoteDocCrawler(self.id, self.password)
 
     def login(self, id, password):
@@ -26,6 +29,6 @@ class GetDocumentService:
 
 
     def getDocument(self, course_name, document_name):
-            filenames = self.document_crawler.downloadDocument(course_name, document_name)
+            filenames = self.document_crawler.downloadSingleDocument(course_name, document_name)
             return filenames
 

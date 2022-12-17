@@ -26,15 +26,12 @@ class DocumentCrawler():
         subjectNames = self.__getSubjectNameList()
 
         for subjectName in subjectNames:
-            if ' ' in subjectName:
-                print('space on subjectName')
-
-        for subjectName in subjectNames:
             self.__accessSubjectPage(subjectName)
             list = self.createDocumentListByCrawling()
             if list:
                 documentList[subjectName] = list
             self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+   
         return documentList
 
     def downloadSingleDocument(self, courseName, documentName):
@@ -48,14 +45,20 @@ class DocumentCrawler():
             self.__login(self.id, self.pw)
 
         subjectNames = self.__getSubjectNameList()
-
         for subjectName in subjectNames:
             if courseName == subjectName:
                 self.__accessSubjectPage(subjectName)
                 list = self.downloadDocumentByCrawling({documentName})
                 if list:
-                    downloadedPath = list[subjectName]
+                    downloadedPath = list[0]
                 self.driver.get('https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl')
+
+        # 파일 이름에 :이 들어가는 경우 오류 발생
+        if ':' in downloadedPath:
+            diskName = downloadedPath[:2]
+            remainPath = downloadedPath[2:]
+            remainPath = remainPath.replace(':', '')
+            return diskName+remainPath
         return downloadedPath
 
     def downloadDocument(self, documentList):
@@ -131,7 +134,7 @@ class DocumentCrawler():
             if(subject.get_attribute('class') != "term_info"):
                 rawName = subject.find_element(By.TAG_NAME, 'em').text
                 # rawName = subject.find_element(By.CLASS_NAME, 'sub_open').text
-                subjectNames.append(rawName[rawName.find(']')+1 : rawName.rfind('(')])
+                subjectNames.append(rawName[rawName.find(']')+1 : rawName.rfind('(')-1])
             else: 
                 break
         return subjectNames

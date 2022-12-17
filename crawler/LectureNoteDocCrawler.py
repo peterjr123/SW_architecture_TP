@@ -19,8 +19,8 @@ class LectureNoteDocCrawler(DocumentCrawler):
         self.driver = None
         self.driver_path = None
         # 절대경로이므로, 컴퓨터마다 수정해 주어야 함.
-        # self.downloadAbsolutePath = "C:/Users/joon/Downloads"
-        self.downloadAbsolutePath = "C:/Users/82103/Downloads"
+        self.downloadAbsolutePath = "C:/Users/joon/Downloads"
+        # self.downloadAbsolutePath = "C:/Users/82103/Downloads"
 
     def downloadDocumentByCrawling(self, documentList):
         filePathList = []
@@ -52,9 +52,9 @@ class LectureNoteDocCrawler(DocumentCrawler):
                     time.sleep(0.1) 
                     # !: 디렉토리내 동일한 이름이 존재해서 파일이 중복다운로드 되는 경우, 해당 파일이름에(1)이 붙게 됨.
                     # 따라서 이 부분에 대해서 적절한 처리가 필요할 수 있음.
-                    filePathList.append(self.downloadAbsolutePath + "/" + fileName) 
+                    filePathList.append(self.downloadAbsolutePath + "/" + fileName)
+                    return filePathList 
             self.driver.back()
-        
         return filePathList
 
     # documentListPage가 존재하지 않아서 접속하지 못한 경우에 false 반환
@@ -91,6 +91,7 @@ class LectureNoteDocCrawler(DocumentCrawler):
             # time.sleep(0.2)
             for file in files:
                 rawName = file.text
+                print("rawName:", rawName)
                 fileName = rawName[rawName.find('-')+2 : rawName.rfind('(')-1]
                 documentList.append(fileName)
 

@@ -12,16 +12,21 @@ class DocumentResponseSender:
         client_socket.sendall(response_msg.encode(encoding="utf-8"))
 
     def getDocument_response(self, client_socket, document_path):
-        with open(document_path, 'rb') as f:
-            try:
+        try: 
+            f = open(document_path, 'rb')
+        except FileNotFoundError as ex:
+            print('error: cannot find error (maybe diff between downloaded file name and DOM file name)')
+            return
+        
+        try:
+            data = f.read(1024)
+            while data:
+                client_socket.send(data)
                 data = f.read(1024)
-                while data:
-                    client_socket.send(data)
-                    data = f.read(1024)
-                print("파일 전송 완료: %s" % document_path)
+            print("파일 전송 완료: %s" % document_path)
 
-            except Exception as ex:
-                print(ex)
+        except Exception as ex:
+            print(ex)
 
     def failed_response(self, client_socket):
         response_msg = "HTTP/1.1 400 Bad Request"
